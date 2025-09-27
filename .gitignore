@@ -1,0 +1,88 @@
+# ===== BLazor Specific =====
+bin/
+obj/
+*.user
+*.userosscache
+*.sln.iml
+*.csproj.user
+*.db
+*.db-shm
+*.db-wal
+app.db
+TestResults/
+
+# ===== .NET Core =====
+**/bin/
+**/obj/
+*.pidb
+*.userprefs
+*.ncrunchproject
+*.dotCover
+*.bak
+*.suo
+*.vsls.json
+*.vsls
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# ===== Visual Studio =====
+.vs/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ===== NuGet =====
+**/packages/*
+!**/packages/repositories.config
+.nuget/
+*.nupkg
+nuget.exe
+
+# ===== OS generated files =====
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ===== Azure =====
+AppCreationScripts/
+azure-pipelines*.yml
+
+# ===== Rider =====
+.idea/
+*.sln.iml
+
+# ===== Misc =====
+*.sql
+*.backup
+*.orig
+*.log
+*.tmp
+_ReSharper.*
+*.resharper
+Ankh.NoLoad
+
+# ===== Database files =====
+*.db
+*.db-shm
+*.db-wal
+app.db
+/Migrations/*.Designer.cs
+/Migrations/*.sqlite
