@@ -200,4 +200,5 @@
 /Users/brycemaloy/RiderProjects/BlazorApp2/BlazorApp2/obj/Debug/net9.0/BlazorApp2.pdb
 /Users/brycemaloy/RiderProjects/BlazorApp2/BlazorApp2/obj/Debug/net9.0/BlazorApp2.genruntimeconfig.cache
 /Users/brycemaloy/RiderProjects/BlazorApp2/BlazorApp2/obj/Debug/net9.0/ref/BlazorApp2.dll
-/Users/brycemaloy/RiderProjects/BlazorApp2/BlazorApp2/obj/Debug/net9.0/compressed/r4a9mvz320-23m8p6u8hv.gz
+/Users/brycemaloy/RiderProjects/BlazorApp2/BlazorApp2/obj/Debug/net9.0/BlazorApp2.sourcelink.json
+/Users/brycemaloy/RiderProjects/BlazorApp2/BlazorApp2/obj/Debug/net9.0/compressed/r4a9mvz320-fdkxuq7f2o.gz

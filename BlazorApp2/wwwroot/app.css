@@ -121,13 +121,13 @@ main {
     transition: all 0.3s ease;
 }
 
-.nav-item a.active {
+.nav-item a.nav-link.active {
     background-color: var(--primary-red);
     color: var(--white);
     border-left: 4px solid var(--white);
 }
 
-.nav-item .nav-link:hover {
+.nav-item a.nav-link:hover {
     background-color: var(--medium-gray);
     color: var(--white);
     border-left: 4px solid var(--light-red);
@@ -159,10 +159,30 @@ a:hover, .btn-link:hover {
     transform: translateY(-1px);
 }
 
+.btn-primary:active,
+.btn-primary:focus:active {
+    background-color: var(--dark-red) !important;
+    border-color: var(--primary-black) !important;
+    box-shadow: 0 0 0 0.1rem var(--white), 0 0 0 0.25rem var(--primary-red) !important;
+}
+
+.btn-primary:focus {
+    background-color: var(--primary-red);
+    border-color: var(--dark-red);
+    box-shadow: 0 0 0 0.1rem var(--white), 0 0 0 0.25rem var(--primary-red);
+}
+
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus,
 .form-control:focus, .form-check-input:focus {
     box-shadow: 0 0 0 0.1rem var(--white), 0 0 0 0.25rem var(--primary-red);
     border-color: var(--primary-red);
+    outline: none;
+}
+
+/* Optional: Add pressed state for better UX */
+.btn-primary:active {
+    transform: translateY(0);
+    transition: all 0.1s ease;
 }
 
 /* ===== FORM STYLES ===== */
