@@ -1,0 +1,180 @@
+@page "/garage/add"
+@rendermode InteractiveServer
+@using BlazorApp2.Data.Models
+@inject NavigationManager NavigationManager
+
+<PageTitle>Add New Vehicle</PageTitle>
+
+<div class="add-vehicle-container">
+    <div class="add-vehicle-header">
+        <button class="btn-back" @onclick="GoBack">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            Back to Garage
+        </button>
+        <h1>Add New Vehicle</h1>
+        <p class="add-vehicle-subtitle">Add a vehicle by entering VIN or selecting manually</p>
+    </div>
+
+    <div class="input-method-toggle">
+        <button class="method-btn @(_inputMethod == InputMethod.Vin ? "active" : "")" @onclick="() => SetInputMethod(InputMethod.Vin)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2zm6 2.5a.5.5 0 0 1 .5.5v2.5h2a.5.5 0 0 1 0 1h-2V11a.5.5 0 0 1-1 0V8.5h-2a.5.5 0 0 1 0-1h2V5a.5.5 0 0 1 .5-.5z"/>
+            </svg>
+            Decode VIN
+        </button>
+        <button class="method-btn @(_inputMethod == InputMethod.Manual ? "active" : "")" @onclick="() => SetInputMethod(InputMethod.Manual)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+                <path d="M3 4h10v1H3V4zm0 3h10v1H3V7zm0 3h6v1H3v-1z"/>
+            </svg>
+            Select Manually
+        </button>
+    </div>
+
+    <div class="add-vehicle-content">
+        @if (_inputMethod == InputMethod.Vin)
+        {
+            <VinDecoderCard OnVehicleDecoded="OnVinDecoded" />
+        }
+        else
+        {
+            <CarSelectorCard OnVehicleSelected="OnManualSelection" />
+        }
+
+        @* Vehicle Preview & Additional Details *@
+        @if (_vehicle is not null)
+        {
+            <div class="vehicle-preview-card">
+                <div class="preview-header">
+                    <h3>Vehicle Details</h3>
+                    <span class="preview-badge">Preview</span>
+                </div>
+                
+                <div class="preview-main">
+                    <div class="preview-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679c.033.161.049.325.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.807.807 0 0 0 .381-.404l.792-1.848ZM3 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2H6ZM2.906 5.189a.51.51 0 0 0 .497.731c.91-.073 3.35-.17 4.597-.17 1.247 0 3.688.097 4.597.17a.51.51 0 0 0 .497-.731l-.956-1.913A.5.5 0 0 0 11.691 3H4.309a.5.5 0 0 0-.447.276L2.906 5.19Z"/>
+                        </svg>
+                    </div>
+                    <div class="preview-title">
+                        <span class="year-badge">@_vehicle.Year</span>
+                        <h2>@_makeName @_vehicle.Model</h2>
+                        @if (!string.IsNullOrEmpty(_vehicle.Trim))
+                        {
+                            <p class="trim">@_vehicle.Trim</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="preview-details">
+                    @if (!string.IsNullOrEmpty(_vehicle.Vin))
+                    {
+                        <div class="detail-row">
+                            <span class="label">VIN</span>
+                            <span class="value">@_vehicle.Vin</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(_vehicle.Engine))
+                    {
+                        <div class="detail-row">
+                            <span class="label">Engine</span>
+                            <span class="value">@_vehicle.Engine</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(_vehicle.Drivetrain))
+                    {
+                        <div class="detail-row">
+                            <span class="label">Drivetrain</span>
+                            <span class="value">@_vehicle.Drivetrain</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="additional-fields">
+                    <h4>Additional Information (Optional)</h4>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="color">Color</label>
+                            <input type="text" id="color" class="form-control" @bind="_vehicle.Color" placeholder="e.g. Midnight Black" />
+                        </div>
+                        <div class="form-group">
+                            <label for="plate">License Plate</label>
+                            <input type="text" id="plate" class="form-control" @bind="_vehicle.LicensePlate" placeholder="ABC-1234" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="mileage">Current Mileage</label>
+                            <input type="number" id="mileage" class="form-control" @bind="_vehicle.CurrentMiles" placeholder="e.g. 45000" />
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <input type="text" id="notes" class="form-control" @bind="_vehicle.Notes" placeholder="Any additional notes..." />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="preview-actions">
+                    <button class="btn btn-secondary" @onclick="ClearVehicle">Clear</button>
+                    <button class="btn btn-primary" @onclick="SaveVehicle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                        </svg>
+                        Add to Garage
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private InputMethod _inputMethod = InputMethod.Vin;
+    private Vehicle? _vehicle;
+    private string _makeName = string.Empty; // For display purposes before save
+
+    private enum InputMethod { Vin, Manual }
+
+    private void SetInputMethod(InputMethod method)
+    {
+        _inputMethod = method;
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/garage");
+    }
+
+    private void OnVinDecoded((Vehicle Vehicle, string MakeName) data)
+    {
+        _vehicle = data.Vehicle;
+        _makeName = data.MakeName;
+        StateHasChanged();
+    }
+
+    private void OnManualSelection((Vehicle Vehicle, string MakeName) data)
+    {
+        _vehicle = data.Vehicle;
+        _makeName = data.MakeName;
+        StateHasChanged();
+    }
+
+    private void ClearVehicle()
+    {
+        _vehicle = null;
+        _makeName = string.Empty;
+    }
+
+    private async Task SaveVehicle()
+    {
+        if (_vehicle is null) return;
+
+        // TODO: Save to database
+        // For now, just navigate back to garage
+        NavigationManager.NavigateTo("/garage");
+    }
+}

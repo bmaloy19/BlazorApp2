@@ -1,0 +1,206 @@
+@using BlazorApp2.Data.Models
+@inject HttpClient Http
+
+<div class="selector-card">
+    <div class="selector-card-header">
+        <h3>Select Your Vehicle</h3>
+        <p>Choose the make, year, and model of your vehicle</p>
+    </div>
+
+    <div class="selector-form">
+        @* Make Selection *@
+        <div class="form-group">
+            <label for="make">Make</label>
+            <select id="make" class="form-control" @bind="_selectedMakeId" @bind:after="OnMakeChanged">
+                <option value="0">Select Make...</option>
+                @foreach (var make in _makes)
+                {
+                    <option value="@make.Id">@make.Name</option>
+                }
+            </select>
+        </div>
+
+        @* Year Selection *@
+        <div class="form-group">
+            <label for="year">Year</label>
+            <select id="year" class="form-control" @bind="_selectedYear" @bind:after="OnYearChanged" disabled="@(_selectedMakeId == 0)">
+                <option value="0">Select Year...</option>
+                @foreach (var year in _availableYears)
+                {
+                    <option value="@year">@year</option>
+                }
+            </select>
+        </div>
+
+        @* Model Selection *@
+        <div class="form-group">
+            <label for="model">Model</label>
+            <div class="input-with-loader">
+                <select id="model" class="form-control" @bind="_selectedModelName" @bind:after="OnModelChanged" disabled="@(_isLoadingModels || _selectedYear == 0)">
+                    <option value="">Select Model...</option>
+                    @if (_models is not null)
+                    {
+                        @foreach (var model in _models)
+                        {
+                            <option value="@model">@model</option>
+                        }
+                    }
+                </select>
+                @if (_isLoadingModels)
+                {
+                    <div class="input-loader">
+                        <div class="spinner"></div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* Trim (Optional) *@
+        <div class="form-group">
+            <label for="trim">Trim (Optional)</label>
+            <input type="text" id="trim" class="form-control" @bind="_trim" placeholder="e.g. SE, Sport, Limited" disabled="@(string.IsNullOrEmpty(_selectedModelName))" />
+        </div>
+
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="alert alert-danger">
+                @_errorMessage
+            </div>
+        }
+
+        <button class="btn btn-primary w-100" @onclick="ConfirmSelection" disabled="@(!IsSelectionValid)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+            </svg>
+            Confirm Selection
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<(Vehicle Vehicle, string MakeName)> OnVehicleSelected { get; set; }
+
+    // Temp makes list (will be replaced with DB call)
+    private readonly List<MakeOption> _makes = new()
+    {
+        new MakeOption { Id = 460, Name = "FORD" },
+        new MakeOption { Id = 473, Name = "MAZDA" },
+        new MakeOption { Id = 474, Name = "MERCURY" }
+    };
+
+    private List<int> _availableYears = Enumerable.Range(1980, DateTime.Now.Year - 1980 + 2).Reverse().ToList();
+    private List<string>? _models;
+
+    private int _selectedMakeId;
+    private int _selectedYear;
+    private string _selectedModelName = string.Empty;
+    private string _trim = string.Empty;
+    
+    private bool _isLoadingModels;
+    private string? _errorMessage;
+
+    private bool IsSelectionValid => _selectedMakeId > 0 && _selectedYear > 0 && !string.IsNullOrEmpty(_selectedModelName);
+
+    private void OnMakeChanged()
+    {
+        // Reset dependent fields
+        _selectedYear = 0;
+        _selectedModelName = string.Empty;
+        _trim = string.Empty;
+        _models = null;
+        _errorMessage = null;
+    }
+
+    private async Task OnYearChanged()
+    {
+        _selectedModelName = string.Empty;
+        _trim = string.Empty;
+        _models = null;
+        _errorMessage = null;
+
+        if (_selectedMakeId == 0 || _selectedYear == 0)
+            return;
+
+        await LoadModels();
+    }
+
+    private async Task LoadModels()
+    {
+        _isLoadingModels = true;
+        StateHasChanged();
+
+        try
+        {
+            // Call NHTSA API to get models for the make and year
+            var url = $"https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeIdYear/makeId/{_selectedMakeId}/modelyear/{_selectedYear}?format=json";
+            var response = await Http.GetFromJsonAsync<ModelApiResponse>(url);
+
+            if (response?.Results is not null)
+            {
+                _models = response.Results
+                    .Where(m => !string.IsNullOrWhiteSpace(m.Model_Name))
+                    .Select(m => m.Model_Name!)
+                    .Distinct()
+                    .OrderBy(m => m)
+                    .ToList();
+
+                if (_models.Count == 0)
+                {
+                    _errorMessage = "No models found for this make and year.";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error loading models: {ex.Message}";
+        }
+        finally
+        {
+            _isLoadingModels = false;
+            StateHasChanged();
+        }
+    }
+
+    private void OnModelChanged()
+    {
+        _errorMessage = null;
+    }
+
+    private async Task ConfirmSelection()
+    {
+        if (!IsSelectionValid) return;
+
+        var selectedMake = _makes.First(m => m.Id == _selectedMakeId);
+
+        var vehicle = new Vehicle
+        {
+            MakeId = _selectedMakeId,
+            Model = _selectedModelName,
+            Year = (short)_selectedYear,
+            Trim = string.IsNullOrWhiteSpace(_trim) ? null : _trim
+        };
+
+        await OnVehicleSelected.InvokeAsync((vehicle, selectedMake.Name));
+    }
+
+    // Internal classes
+    private class MakeOption
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+
+    private class ModelApiResponse
+    {
+        public int Count { get; set; }
+        public string? Message { get; set; }
+        public List<ModelResult>? Results { get; set; }
+    }
+
+    private class ModelResult
+    {
+        public int? Model_ID { get; set; }
+        public string? Model_Name { get; set; }
+    }
+}

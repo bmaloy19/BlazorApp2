@@ -1,0 +1,229 @@
+@page "/garage"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+
+<PageTitle>My Garage</PageTitle>
+
+<div class="garage-container">
+    <div class="garage-header">
+        <div class="garage-header-content">
+            <h1>My Garage</h1>
+            <p class="garage-subtitle">Manage your vehicles and keep track of maintenance</p>
+        </div>
+        <div class="view-toggle">
+            <button class="view-toggle-btn @(_viewMode == ViewMode.Card ? "active" : "")" @onclick="() => SetViewMode(ViewMode.Card)" title="Card View">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zm8 0A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm-8 8A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm8 0A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3z"/>
+                </svg>
+            </button>
+            <button class="view-toggle-btn @(_viewMode == ViewMode.List ? "active" : "")" @onclick="() => SetViewMode(ViewMode.List)" title="List View">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    @if (_viewMode == ViewMode.Card)
+    {
+        <div class="garage-grid">
+            @foreach (var vehicle in _tempVehicles)
+            {
+                <div class="vehicle-card">
+                    <div class="vehicle-card-header">
+                        <div class="vehicle-year-badge">@vehicle.Year</div>
+                    </div>
+                    
+                    <div class="vehicle-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679c.033.161.049.325.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.807.807 0 0 0 .381-.404l.792-1.848ZM3 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2H6ZM2.906 5.189a.51.51 0 0 0 .497.731c.91-.073 3.35-.17 4.597-.17 1.247 0 3.688.097 4.597.17a.51.51 0 0 0 .497-.731l-.956-1.913A.5.5 0 0 0 11.691 3H4.309a.5.5 0 0 0-.447.276L2.906 5.19Z"/>
+                        </svg>
+                    </div>
+                    
+                    <div class="vehicle-info">
+                        <h3 class="vehicle-name">@vehicle.Make @vehicle.Model</h3>
+                        <p class="vehicle-trim">@vehicle.Trim</p>
+                    </div>
+                    
+                    <div class="vehicle-details">
+                        @if (!string.IsNullOrEmpty(vehicle.Color))
+                        {
+                            <div class="detail-item">
+                                <span class="detail-label">Color</span>
+                                <span class="detail-value">@vehicle.Color</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(vehicle.LicensePlate))
+                        {
+                            <div class="detail-item">
+                                <span class="detail-label">Plate</span>
+                                <span class="detail-value">@vehicle.LicensePlate</span>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="vehicle-actions">
+                        <button class="btn-vehicle-action" @onclick="() => ViewVehicle(vehicle)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                            </svg>
+                            View
+                        </button>
+                        <button class="btn-vehicle-action btn-edit" @onclick="() => EditVehicle(vehicle)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                            Edit
+                        </button>
+                    </div>
+                </div>
+            }
+
+            @* Add New Vehicle Card - Now at the end *@
+            <div class="vehicle-card add-vehicle-card" @onclick="OpenAddVehicleModal">
+                <div class="add-vehicle-content">
+                    <div class="add-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        </svg>
+                    </div>
+                    <span class="add-text">Add New Vehicle</span>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="garage-list">
+            @foreach (var vehicle in _tempVehicles)
+            {
+                <div class="vehicle-row">
+                    <div class="vehicle-row-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679c.033.161.049.325.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.807.807 0 0 0 .381-.404l.792-1.848ZM3 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2H6ZM2.906 5.189a.51.51 0 0 0 .497.731c.91-.073 3.35-.17 4.597-.17 1.247 0 3.688.097 4.597.17a.51.51 0 0 0 .497-.731l-.956-1.913A.5.5 0 0 0 11.691 3H4.309a.5.5 0 0 0-.447.276L2.906 5.19Z"/>
+                        </svg>
+                    </div>
+                    <div class="vehicle-row-info">
+                        <div class="vehicle-row-main">
+                            <span class="vehicle-row-year">@vehicle.Year</span>
+                            <span class="vehicle-row-name">@vehicle.Make @vehicle.Model</span>
+                            <span class="vehicle-row-trim">@vehicle.Trim</span>
+                        </div>
+                        <div class="vehicle-row-details">
+                            @if (!string.IsNullOrEmpty(vehicle.Color))
+                            {
+                                <span class="vehicle-row-detail">@vehicle.Color</span>
+                            }
+                            @if (!string.IsNullOrEmpty(vehicle.LicensePlate))
+                            {
+                                <span class="vehicle-row-detail">@vehicle.LicensePlate</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="vehicle-row-actions">
+                        <button class="btn-vehicle-action" @onclick="() => ViewVehicle(vehicle)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+                            </svg>
+                            View
+                        </button>
+                        <button class="btn-vehicle-action btn-edit" @onclick="() => EditVehicle(vehicle)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                            </svg>
+                            Edit
+                        </button>
+                    </div>
+                </div>
+            }
+
+            @* Add New Vehicle Row *@
+            <div class="vehicle-row add-vehicle-row" @onclick="OpenAddVehicleModal">
+                <div class="vehicle-row-icon add-icon-small">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                    </svg>
+                </div>
+                <div class="vehicle-row-info">
+                    <span class="add-text">Add New Vehicle</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private ViewMode _viewMode = ViewMode.Card;
+    
+    private enum ViewMode { Card, List }
+    
+    // Temporary vehicle data for UI development
+    private List<TempVehicle> _tempVehicles = new()
+    {
+        new TempVehicle 
+        { 
+            Id = 1, 
+            Make = "Toyota", 
+            Model = "Camry", 
+            Year = 2022, 
+            Trim = "SE Nightshade", 
+            Color = "Midnight Black",
+            LicensePlate = "ABC-1234"
+        },
+        new TempVehicle 
+        { 
+            Id = 2, 
+            Make = "Honda", 
+            Model = "Accord", 
+            Year = 2021, 
+            Trim = "Sport 2.0T", 
+            Color = "Platinum White",
+            LicensePlate = "XYZ-5678"
+        },
+        new TempVehicle 
+        { 
+            Id = 3, 
+            Make = "Ford", 
+            Model = "F-150", 
+            Year = 2023, 
+            Trim = "Lariat", 
+            Color = "Iconic Silver",
+            LicensePlate = "TRK-9012"
+        }
+    };
+    
+    private void SetViewMode(ViewMode mode)
+    {
+        _viewMode = mode;
+        StateHasChanged();
+    }
+    
+    private void OpenAddVehicleModal()
+    {
+        NavigationManager.NavigateTo("/garage/add");
+    }
+    
+    private void ViewVehicle(TempVehicle vehicle)
+    {
+        // TODO: Navigate to vehicle details page
+    }
+    
+    private void EditVehicle(TempVehicle vehicle)
+    {
+        // TODO: Open edit modal
+    }
+    
+    // Temporary class for UI development
+    private class TempVehicle
+    {
+        public int Id { get; set; }
+        public string Make { get; set; } = "";
+        public string Model { get; set; } = "";
+        public int Year { get; set; }
+        public string Trim { get; set; } = "";
+        public string? Color { get; set; }
+        public string? LicensePlate { get; set; }
+    }
+}

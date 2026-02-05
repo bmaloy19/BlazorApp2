@@ -36,6 +36,10 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
+// Add HttpClient for API calls (VIN decoder, etc.)
+builder.Services.AddHttpClient();
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://vpic.nhtsa.dot.gov/") });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

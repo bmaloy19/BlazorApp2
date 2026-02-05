@@ -1592,3 +1592,880 @@ textarea.form-control {
 html {
     scroll-behavior: smooth;
 }
+
+/* ============================================================
+   GARAGE PAGE STYLES
+   ============================================================ */
+
+.garage-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.garage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.garage-header-content {
+    flex: 1;
+}
+
+.garage-header h1 {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--heading-text);
+    margin-bottom: var(--space-xs);
+}
+
+.garage-subtitle {
+    color: var(--gray);
+    font-size: var(--font-size-base);
+    margin: 0;
+}
+
+/* View Toggle */
+.view-toggle {
+    display: flex;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 4px;
+    gap: 4px;
+}
+
+.view-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: var(--gray);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.view-toggle-btn:hover {
+    color: var(--primary-red);
+    background: var(--lightest-gray);
+}
+
+.view-toggle-btn.active {
+    background: var(--primary-red);
+    color: var(--white);
+}
+
+.garage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-lg);
+}
+
+/* Vehicle Card Base */
+.vehicle-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--card-border);
+    padding: var(--space-lg);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.vehicle-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--lighter-gray);
+    transition: background var(--transition-base);
+}
+
+.vehicle-card:hover {
+    border-color: var(--light-gray);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+}
+
+.vehicle-card:hover::before {
+    background: var(--primary-red);
+}
+
+
+/* Add Vehicle Card */
+.add-vehicle-card {
+    border: 2px dashed var(--lighter-gray);
+    background: linear-gradient(135deg, var(--lightest-gray) 0%, var(--white) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 320px;
+}
+
+.add-vehicle-card::before {
+    display: none;
+}
+
+.add-vehicle-card:hover {
+    border-color: var(--primary-red);
+    background: linear-gradient(135deg, #fff5f5 0%, var(--white) 100%);
+}
+
+.add-vehicle-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.add-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-full);
+    background: var(--lightest-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray);
+    transition: all var(--transition-base);
+}
+
+.add-vehicle-card:hover .add-icon {
+    background: var(--primary-red);
+    color: var(--white);
+    transform: scale(1.1);
+}
+
+.add-text {
+    font-weight: 600;
+    color: var(--gray);
+    font-size: var(--font-size-base);
+    transition: color var(--transition-base);
+}
+
+.add-vehicle-card:hover .add-text {
+    color: var(--primary-red);
+}
+
+/* Vehicle Card Header */
+.vehicle-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-md);
+}
+
+.vehicle-year-badge {
+    background: var(--dark-gray);
+    color: var(--white);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+/* Vehicle Icon */
+.vehicle-icon {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-lg) 0;
+    color: var(--lighter-gray);
+    transition: color var(--transition-base);
+}
+
+.vehicle-card:hover .vehicle-icon {
+    color: var(--primary-red);
+}
+
+/* Vehicle Info */
+.vehicle-info {
+    text-align: center;
+    margin-bottom: var(--space-md);
+}
+
+.vehicle-name {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--heading-text);
+    margin: 0 0 var(--space-xs) 0;
+}
+
+.vehicle-trim {
+    font-size: var(--font-size-sm);
+    color: var(--gray);
+    margin: 0;
+}
+
+/* Vehicle Details */
+.vehicle-details {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-lg);
+    padding: var(--space-md) 0;
+    border-top: 1px solid var(--card-border);
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: var(--space-md);
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.detail-label {
+    font-size: var(--font-size-xs);
+    color: var(--light-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.detail-value {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--body-text);
+}
+
+/* Vehicle Actions */
+.vehicle-actions {
+    display: flex;
+    gap: var(--space-sm);
+    justify-content: center;
+}
+
+.btn-vehicle-action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--gray);
+    background: var(--lightest-gray);
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-vehicle-action:hover {
+    background: var(--primary-red);
+    color: var(--white);
+}
+
+.btn-vehicle-action.btn-edit:hover {
+    background: var(--dark-gray);
+}
+
+/* ===== LIST VIEW STYLES ===== */
+.garage-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.vehicle-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md) var(--space-lg);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.vehicle-row:hover {
+    border-color: var(--primary-red);
+    box-shadow: var(--shadow-md);
+}
+
+.vehicle-row:hover .vehicle-row-icon {
+    color: var(--primary-red);
+}
+
+.vehicle-row-icon {
+    color: var(--lighter-gray);
+    flex-shrink: 0;
+    transition: color var(--transition-base);
+}
+
+.vehicle-row-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.vehicle-row-main {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-xs);
+}
+
+.vehicle-row-year {
+    background: var(--dark-gray);
+    color: var(--white);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+}
+
+.vehicle-row-name {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--heading-text);
+}
+
+.vehicle-row-trim {
+    font-size: var(--font-size-sm);
+    color: var(--gray);
+}
+
+.vehicle-row-details {
+    display: flex;
+    gap: var(--space-md);
+}
+
+.vehicle-row-detail {
+    font-size: var(--font-size-sm);
+    color: var(--light-gray);
+}
+
+.vehicle-row-detail::before {
+    content: "•";
+    margin-right: var(--space-sm);
+    color: var(--lighter-gray);
+}
+
+.vehicle-row-detail:first-child::before {
+    display: none;
+}
+
+.vehicle-row-actions {
+    display: flex;
+    gap: var(--space-sm);
+    flex-shrink: 0;
+}
+
+/* Add Vehicle Row */
+.add-vehicle-row {
+    border-style: dashed;
+    border-color: var(--lighter-gray);
+    justify-content: flex-start;
+}
+
+.add-vehicle-row:hover {
+    border-color: var(--primary-red);
+    background: linear-gradient(135deg, #fff5f5 0%, var(--white) 100%);
+}
+
+.add-vehicle-row .add-text {
+    font-weight: 600;
+    color: var(--gray);
+    transition: color var(--transition-base);
+}
+
+.add-vehicle-row:hover .add-text {
+    color: var(--primary-red);
+}
+
+.add-icon-small {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    background: var(--lightest-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray);
+    transition: all var(--transition-base);
+}
+
+.add-vehicle-row:hover .add-icon-small {
+    background: var(--primary-red);
+    color: var(--white);
+}
+
+/* Modal Enhancements for Add Vehicle */
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--gray);
+    cursor: pointer;
+    padding: var(--space-xs);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close:hover {
+    background: var(--lightest-gray);
+    color: var(--primary-red);
+}
+
+.add-vehicle-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+}
+
+@media (max-width: 640px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .garage-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .garage-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .garage-header h1 {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .vehicle-details {
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+    
+    .detail-item {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+    }
+    
+    /* List view responsive */
+    .vehicle-row {
+        flex-wrap: wrap;
+        gap: var(--space-md);
+    }
+    
+    .vehicle-row-actions {
+        width: 100%;
+        justify-content: flex-end;
+        padding-top: var(--space-sm);
+        border-top: 1px solid var(--card-border);
+    }
+    
+    .vehicle-row-main {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-xs);
+    }
+    
+    .vehicle-row-details {
+        flex-direction: column;
+        gap: var(--space-xs);
+    }
+    
+    .vehicle-row-detail::before {
+        display: none;
+    }
+}
+
+/* ============================================================
+   ADD VEHICLE PAGE STYLES
+   ============================================================ */
+
+.add-vehicle-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.add-vehicle-header {
+    margin-bottom: var(--space-xl);
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: none;
+    border: none;
+    color: var(--gray);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    padding: var(--space-sm) 0;
+    margin-bottom: var(--space-md);
+    transition: color var(--transition-fast);
+}
+
+.btn-back:hover {
+    color: var(--primary-red);
+}
+
+.add-vehicle-header h1 {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--heading-text);
+    margin-bottom: var(--space-xs);
+}
+
+.add-vehicle-subtitle {
+    color: var(--gray);
+    font-size: var(--font-size-base);
+    margin: 0;
+}
+
+/* Input Method Toggle */
+.input-method-toggle {
+    display: flex;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: 6px;
+    gap: 6px;
+    margin-bottom: var(--space-xl);
+}
+
+.method-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-lg);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--gray);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.method-btn:hover {
+    background: var(--lightest-gray);
+    color: var(--body-text);
+}
+
+.method-btn.active {
+    background: var(--primary-red);
+    color: var(--white);
+    box-shadow: var(--shadow-md);
+}
+
+/* Add Vehicle Content */
+.add-vehicle-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+}
+
+/* Selector Card */
+.selector-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.selector-card-header {
+    background: var(--black);
+    color: var(--white);
+    padding: var(--space-lg);
+    border-bottom: 3px solid var(--primary-red);
+}
+
+.selector-card-header h3 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin: 0 0 var(--space-xs) 0;
+}
+
+.selector-card-header p {
+    font-size: var(--font-size-sm);
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+.selector-form {
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+/* VIN Input Styles */
+.vin-input-wrapper {
+    position: relative;
+}
+
+.vin-input {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    font-size: var(--font-size-lg);
+    letter-spacing: 0.1em;
+    padding-right: 70px;
+}
+
+.vin-counter {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: var(--font-size-xs);
+    color: var(--light-gray);
+    font-weight: 500;
+}
+
+/* Input with loader */
+.input-with-loader {
+    position: relative;
+}
+
+.input-loader {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Decoded Results */
+.decoded-results {
+    border-top: 1px solid var(--card-border);
+    padding: var(--space-lg);
+    background: var(--lightest-gray);
+}
+
+.decoded-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+}
+
+.decoded-header h4 {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    margin: 0;
+    color: var(--heading-text);
+}
+
+.btn-clear {
+    background: none;
+    border: none;
+    color: var(--gray);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.btn-clear:hover {
+    background: var(--white);
+    color: var(--primary-red);
+}
+
+.decoded-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+}
+
+.decoded-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--space-sm);
+    background: var(--white);
+    border-radius: var(--radius-sm);
+}
+
+.decoded-item .label {
+    font-size: var(--font-size-xs);
+    color: var(--light-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.decoded-item .value {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--body-text);
+}
+
+/* Vehicle Preview Card */
+.vehicle-preview-card {
+    background: var(--card-bg);
+    border: 2px solid var(--primary-red);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md) var(--space-lg);
+    background: var(--lightest-gray);
+    border-bottom: 1px solid var(--card-border);
+}
+
+.preview-header h3 {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    margin: 0;
+}
+
+.preview-badge {
+    background: var(--primary-red);
+    color: var(--white);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
+.preview-main {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--card-border);
+}
+
+.preview-icon {
+    color: var(--primary-red);
+}
+
+.preview-title {
+    flex: 1;
+}
+
+.preview-title .year-badge {
+    display: inline-block;
+    background: var(--dark-gray);
+    color: var(--white);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    margin-bottom: var(--space-xs);
+}
+
+.preview-title h2 {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    margin: 0;
+    color: var(--heading-text);
+}
+
+.preview-title .trim {
+    font-size: var(--font-size-sm);
+    color: var(--gray);
+    margin: var(--space-xs) 0 0 0;
+}
+
+.preview-details {
+    padding: var(--space-md) var(--space-lg);
+    background: var(--lightest-gray);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-lg);
+}
+
+.preview-details .detail-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.preview-details .label {
+    font-size: var(--font-size-xs);
+    color: var(--light-gray);
+    text-transform: uppercase;
+}
+
+.preview-details .value {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--body-text);
+}
+
+.additional-fields {
+    padding: var(--space-lg);
+    border-top: 1px solid var(--card-border);
+}
+
+.additional-fields h4 {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--gray);
+    margin: 0 0 var(--space-md) 0;
+}
+
+.preview-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+    background: var(--lightest-gray);
+    border-top: 1px solid var(--card-border);
+}
+
+/* Button full width utility */
+.w-100 {
+    width: 100%;
+}
+
+.mt-3 {
+    margin-top: var(--space-md);
+}
+
+/* Responsive for Add Vehicle */
+@media (max-width: 640px) {
+    .input-method-toggle {
+        flex-direction: column;
+    }
+    
+    .decoded-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .preview-main {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .preview-details {
+        justify-content: center;
+    }
+    
+    .preview-actions {
+        flex-direction: column;
+    }
+    
+    .preview-actions .btn {
+        width: 100%;
+    }
+}

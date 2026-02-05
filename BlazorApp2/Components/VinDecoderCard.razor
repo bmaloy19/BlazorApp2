@@ -1,0 +1,300 @@
+@using BlazorApp2.Data.Models
+@inject HttpClient Http
+
+<div class="selector-card">
+    <div class="selector-card-header">
+        <h3>Decode VIN</h3>
+        <p>Enter your 17-character Vehicle Identification Number</p>
+    </div>
+
+    <div class="selector-form">
+        <div class="form-group">
+            <label for="vin">VIN</label>
+            <div class="vin-input-wrapper">
+                <input type="text" 
+                       id="vin" 
+                       class="form-control vin-input @(_vinError is not null ? "is-invalid" : "")" 
+                       @bind="_vin" 
+                       @bind:event="oninput"
+                       @onkeyup="OnVinInput"
+                       placeholder="Enter 17-character VIN" 
+                       maxlength="17" 
+                       style="text-transform: uppercase;" />
+                <span class="vin-counter">@_vin.Length / 17</span>
+            </div>
+            @if (_vinError is not null)
+            {
+                <div class="validation-message">@_vinError</div>
+            }
+        </div>
+
+        <div class="form-group">
+            <label for="modelYear">Model Year (Optional)</label>
+            <input type="number" id="modelYear" class="form-control" @bind="_modelYear" placeholder="Helps improve accuracy" min="1980" max="@(DateTime.Now.Year + 1)" />
+            <span class="form-text">Providing the year can improve decode accuracy</span>
+        </div>
+
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="alert alert-danger">
+                @_errorMessage
+            </div>
+        }
+
+        <button class="btn btn-primary w-100" @onclick="DecodeVin" disabled="@(_isLoading || _vin.Length != 17)">
+            @if (_isLoading)
+            {
+                <div class="spinner spinner-sm"></div>
+                <span>Decoding...</span>
+            }
+            else
+            {
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                </svg>
+                <span>Decode VIN</span>
+            }
+        </button>
+    </div>
+
+    @* Decoded Results Preview *@
+    @if (_decodedVehicle is not null)
+    {
+        <div class="decoded-results">
+            <div class="decoded-header">
+                <h4>Decoded Information</h4>
+                <button class="btn-clear" @onclick="ClearResults">Clear</button>
+            </div>
+            
+            <div class="decoded-grid">
+                @if (!string.IsNullOrEmpty(_makeName))
+                {
+                    <div class="decoded-item">
+                        <span class="label">Make</span>
+                        <span class="value">@_makeName</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(_decodedVehicle.Model))
+                {
+                    <div class="decoded-item">
+                        <span class="label">Model</span>
+                        <span class="value">@_decodedVehicle.Model</span>
+                    </div>
+                }
+                @if (_decodedVehicle.Year.HasValue)
+                {
+                    <div class="decoded-item">
+                        <span class="label">Year</span>
+                        <span class="value">@_decodedVehicle.Year</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(_decodedVehicle.Trim))
+                {
+                    <div class="decoded-item">
+                        <span class="label">Trim</span>
+                        <span class="value">@_decodedVehicle.Trim</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(_decodedVehicle.Engine))
+                {
+                    <div class="decoded-item">
+                        <span class="label">Engine</span>
+                        <span class="value">@_decodedVehicle.Engine</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(_decodedVehicle.Drivetrain))
+                {
+                    <div class="decoded-item">
+                        <span class="label">Drivetrain</span>
+                        <span class="value">@_decodedVehicle.Drivetrain</span>
+                    </div>
+                }
+            </div>
+
+            <button class="btn btn-primary w-100 mt-3" @onclick="ConfirmVehicle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                </svg>
+                Use This Vehicle
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<(Vehicle Vehicle, string MakeName)> OnVehicleDecoded { get; set; }
+
+    // Known makes mapping (temp - will be from DB)
+    private readonly Dictionary<string, int> _knownMakes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "FORD", 460 },
+        { "MAZDA", 473 },
+        { "MERCURY", 474 }
+    };
+
+    private string _vin = string.Empty;
+    private int? _modelYear;
+    private bool _isLoading;
+    private string? _errorMessage;
+    private string? _vinError;
+    private Vehicle? _decodedVehicle;
+    private string _makeName = string.Empty;
+    private string? _originalJson;
+
+    private void OnVinInput()
+    {
+        _vin = _vin.ToUpperInvariant().Trim();
+        _vinError = null;
+        _errorMessage = null;
+        
+        if (_vin.Length > 0 && _vin.Length < 17)
+        {
+            _vinError = $"VIN must be 17 characters ({17 - _vin.Length} more needed)";
+        }
+    }
+
+    private async Task DecodeVin()
+    {
+        if (_vin.Length != 17)
+        {
+            _vinError = "VIN must be exactly 17 characters";
+            return;
+        }
+
+        _isLoading = true;
+        _errorMessage = null;
+        _decodedVehicle = null;
+        _makeName = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            var url = $"https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/{_vin}?format=json";
+            if (_modelYear.HasValue)
+            {
+                url += $"&modelyear={_modelYear.Value}";
+            }
+
+            var response = await Http.GetFromJsonAsync<VinApiResponse>(url);
+
+            if (response?.Results is not null && response.Results.Count > 0)
+            {
+                var result = response.Results[0];
+                
+                // Store original JSON for reference
+                _originalJson = System.Text.Json.JsonSerializer.Serialize(result);
+
+                // Check for errors in the response
+                var errorCode = GetValue(result, "ErrorCode");
+                if (!string.IsNullOrEmpty(errorCode) && errorCode != "0")
+                {
+                    var errorText = GetValue(result, "ErrorText");
+                    if (!string.IsNullOrEmpty(errorText) && !errorText.Contains("0 -"))
+                    {
+                        _errorMessage = $"VIN decode warning: {errorText}";
+                    }
+                }
+
+                // Extract make and try to match to our known makes
+                _makeName = GetValue(result, "Make") ?? string.Empty;
+                var makeId = 0;
+                if (!string.IsNullOrEmpty(_makeName) && _knownMakes.TryGetValue(_makeName, out var knownMakeId))
+                {
+                    makeId = knownMakeId;
+                }
+
+                // Build engine description
+                var engineParts = new List<string>();
+                var displacement = GetValue(result, "DisplacementL");
+                var cylinders = GetValue(result, "EngineCylinders");
+                var engineModel = GetValue(result, "EngineModel");
+                var fuelType = GetValue(result, "FuelTypePrimary");
+
+                if (!string.IsNullOrEmpty(displacement)) engineParts.Add($"{displacement}L");
+                if (!string.IsNullOrEmpty(cylinders)) engineParts.Add($"{cylinders}-Cyl");
+                if (!string.IsNullOrEmpty(engineModel)) engineParts.Add(engineModel);
+                if (!string.IsNullOrEmpty(fuelType)) engineParts.Add(fuelType);
+
+                var engine = engineParts.Count > 0 ? string.Join(" ", engineParts) : null;
+
+                // Parse year
+                short? year = null;
+                var yearStr = GetValue(result, "ModelYear");
+                if (short.TryParse(yearStr, out var parsedYear))
+                {
+                    year = parsedYear;
+                }
+
+                _decodedVehicle = new Vehicle
+                {
+                    MakeId = makeId,
+                    Model = GetValue(result, "Model") ?? string.Empty,
+                    Year = year,
+                    Trim = GetValue(result, "Trim"),
+                    Vin = _vin,
+                    Engine = engine,
+                    Drivetrain = GetValue(result, "DriveType"),
+                    OriginalJson = _originalJson
+                };
+
+                if (string.IsNullOrEmpty(_makeName) && string.IsNullOrEmpty(_decodedVehicle.Model))
+                {
+                    _errorMessage = "Could not decode vehicle information from this VIN. Please try manual entry.";
+                    _decodedVehicle = null;
+                    _makeName = string.Empty;
+                }
+            }
+            else
+            {
+                _errorMessage = "No results found for this VIN.";
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            _errorMessage = $"Error connecting to VIN decoder service: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"An error occurred: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private static string? GetValue(Dictionary<string, object?> dict, string key)
+    {
+        if (dict.TryGetValue(key, out var value) && value is not null)
+        {
+            var str = value.ToString();
+            return string.IsNullOrWhiteSpace(str) ? null : str;
+        }
+        return null;
+    }
+
+    private void ClearResults()
+    {
+        _decodedVehicle = null;
+        _makeName = string.Empty;
+        _originalJson = null;
+    }
+
+    private async Task ConfirmVehicle()
+    {
+        if (_decodedVehicle is not null)
+        {
+            await OnVehicleDecoded.InvokeAsync((_decodedVehicle, _makeName));
+        }
+    }
+
+    // API Response classes
+    private class VinApiResponse
+    {
+        public int Count { get; set; }
+        public string? Message { get; set; }
+        public List<Dictionary<string, object?>>? Results { get; set; }
+    }
+}
