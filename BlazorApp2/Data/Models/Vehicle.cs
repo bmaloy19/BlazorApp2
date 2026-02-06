@@ -9,27 +9,38 @@ public class Vehicle
 {
     [Key]
     [Column("id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Id { get; set; }
 
-    [Required]
     [MaxLength(128)]
     [Column("original_owner_user_id")]
-    public string OriginalOwnerUserId { get; set; } = string.Empty;
+    public string? OriginalOwnerUserId { get; set; }
 
     [Column("make_id")]
-    public int MakeId { get; set; }
+    public int? MakeId { get; set; }
 
-    [Required]
     [MaxLength(120)]
     [Column("model")]
-    public string Model { get; set; } = string.Empty;
+    public string? Model { get; set; }
 
     [Column("year")]
-    public short? Year { get; set; }
+    public int? Year { get; set; }
 
     [MaxLength(120)]
     [Column("trim")]
     public string? Trim { get; set; }
+
+    [MaxLength(60)]
+    [Column("body_class")]
+    public string? BodyClass { get; set; }
+
+    [MaxLength(40)]
+    [Column("vehicle_type")]
+    public string? VehicleType { get; set; }
+
+    [MaxLength(80)]
+    [Column("series")]
+    public string? Series { get; set; }
 
     [MaxLength(17)]
     [Column("vin")]
@@ -55,7 +66,7 @@ public class Vehicle
     public int? CurrentMiles { get; set; }
 
     [Column("current_hours")]
-    public int? CurrentHours { get; set; }
+    public decimal? CurrentHours { get; set; }
 
     [Column("track_hours")]
     public bool TrackHours { get; set; } = false;
@@ -74,10 +85,10 @@ public class Vehicle
 
     // Navigation properties
     [ForeignKey(nameof(MakeId))]
-    public Make Make { get; set; } = null!;
+    public Make? Make { get; set; }
 
     [ForeignKey(nameof(OriginalOwnerUserId))]
-    public ApplicationUser OriginalOwner { get; set; } = null!;
+    public ApplicationUser? OriginalOwner { get; set; }
 
     public ICollection<UserVehicle> UserVehicles { get; set; } = new List<UserVehicle>();
     public ICollection<ServiceRecord> ServiceRecords { get; set; } = new List<ServiceRecord>();

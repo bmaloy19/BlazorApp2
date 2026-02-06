@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BlazorApp2.Data;
 
 namespace BlazorApp2.Data.Models;
 
@@ -14,10 +15,9 @@ public class UserVehicle
     [Column("vehicle_id")]
     public long VehicleId { get; set; }
 
-    [Required]
     [MaxLength(20)]
     [Column("role")]
-    public string Role { get; set; } = "owner";
+    public string? Role { get; set; }
 
     [MaxLength(120)]
     [Column("nickname")]

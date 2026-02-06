@@ -37,11 +37,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.HasOne(v => v.Make)
                 .WithMany(m => m.Vehicles)
                 .HasForeignKey(v => v.MakeId)
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(v => v.OriginalOwner)
                 .WithMany(u => u.OwnedVehicles)
                 .HasForeignKey(v => v.OriginalOwnerUserId)
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 

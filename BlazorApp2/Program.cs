@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using BlazorApp2.Components;
 using BlazorApp2.Components.Account;
 using BlazorApp2.Data;
+using BlazorApp2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,8 +26,15 @@ builder.Services.AddAuthentication(options =>
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+
+// Use pooled DbContextFactory - this registers both IDbContextFactory<T> and DbContext
+builder.Services.AddPooledDbContextFactory<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
+
+// Register scoped DbContext from the factory for Identity and other services that need it
+builder.Services.AddScoped(sp => 
+    sp.GetRequiredService<IDbContextFactory<ApplicationDbContext>>().CreateDbContext());
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -35,6 +43,10 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+// Register application services
+builder.Services.AddScoped<VehicleService>();
+builder.Services.AddScoped<ServiceRecordService>();
 
 // Add HttpClient for API calls (VIN decoder, etc.)
 builder.Services.AddHttpClient();

@@ -88,11 +88,32 @@
                         <span class="value">@_decodedVehicle.Year</span>
                     </div>
                 }
+                @if (!string.IsNullOrEmpty(_decodedVehicle.Series))
+                {
+                    <div class="decoded-item">
+                        <span class="label">Series</span>
+                        <span class="value">@_decodedVehicle.Series</span>
+                    </div>
+                }
                 @if (!string.IsNullOrEmpty(_decodedVehicle.Trim))
                 {
                     <div class="decoded-item">
                         <span class="label">Trim</span>
                         <span class="value">@_decodedVehicle.Trim</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(_decodedVehicle.BodyClass))
+                {
+                    <div class="decoded-item">
+                        <span class="label">Body</span>
+                        <span class="value">@_decodedVehicle.BodyClass</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(_decodedVehicle.VehicleType))
+                {
+                    <div class="decoded-item">
+                        <span class="label">Type</span>
+                        <span class="value">@_decodedVehicle.VehicleType</span>
                     </div>
                 }
                 @if (!string.IsNullOrEmpty(_decodedVehicle.Engine))
@@ -110,6 +131,42 @@
                     </div>
                 }
             </div>
+
+            @* Show all additional non-null API values *@
+            @if (_allDecodedValues.Count > 0)
+            {
+                <div class="decoded-extra-section">
+                    <button class="btn-toggle-extra" @onclick="() => _showAllValues = !_showAllValues">
+                        @if (_showAllValues)
+                        {
+                            <span>Hide Additional Details (@_allDecodedValues.Count)</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/>
+                            </svg>
+                        }
+                        else
+                        {
+                            <span>Show Additional Details (@_allDecodedValues.Count)</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        }
+                    </button>
+                    
+                    @if (_showAllValues)
+                    {
+                        <div class="decoded-all-values">
+                            @foreach (var kvp in _allDecodedValues.OrderBy(x => x.Key))
+                            {
+                                <div class="decoded-item-small">
+                                    <span class="label">@FormatLabel(kvp.Key)</span>
+                                    <span class="value">@kvp.Value</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
 
             <button class="btn btn-primary w-100 mt-3" @onclick="ConfirmVehicle">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -141,6 +198,16 @@
     private Vehicle? _decodedVehicle;
     private string _makeName = string.Empty;
     private string? _originalJson;
+    private Dictionary<string, string> _allDecodedValues = new();
+    private bool _showAllValues = false;
+
+    // Keys to exclude from "additional values" (already shown in main section or not useful)
+    private static readonly HashSet<string> ExcludedKeys = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Make", "Model", "ModelYear", "Trim", "DriveType", "DisplacementL", "EngineCylinders", 
+        "EngineModel", "FuelTypePrimary", "ErrorCode", "ErrorText", "VIN", "SuggestedVIN",
+        "ErrorCodeCleanedNull", "MakeId", "ModelId", "VehicleId", "BodyClass", "VehicleType", "Series"
+    };
 
     private void OnVinInput()
     {
@@ -166,6 +233,8 @@
         _errorMessage = null;
         _decodedVehicle = null;
         _makeName = string.Empty;
+        _allDecodedValues.Clear();
+        _showAllValues = false;
         StateHasChanged();
 
         try
@@ -219,9 +288,9 @@
                 var engine = engineParts.Count > 0 ? string.Join(" ", engineParts) : null;
 
                 // Parse year
-                short? year = null;
+                int? year = null;
                 var yearStr = GetValue(result, "ModelYear");
-                if (short.TryParse(yearStr, out var parsedYear))
+                if (int.TryParse(yearStr, out var parsedYear))
                 {
                     year = parsedYear;
                 }
@@ -232,11 +301,27 @@
                     Model = GetValue(result, "Model") ?? string.Empty,
                     Year = year,
                     Trim = GetValue(result, "Trim"),
+                    BodyClass = GetValue(result, "BodyClass"),
+                    VehicleType = GetValue(result, "VehicleType"),
+                    Series = GetValue(result, "Series"),
                     Vin = _vin,
                     Engine = engine,
                     Drivetrain = GetValue(result, "DriveType"),
                     OriginalJson = _originalJson
                 };
+
+                // Extract all non-null values for display
+                foreach (var kvp in result)
+                {
+                    if (kvp.Value is not null && !ExcludedKeys.Contains(kvp.Key))
+                    {
+                        var strValue = kvp.Value.ToString();
+                        if (!string.IsNullOrWhiteSpace(strValue) && strValue != "0" && strValue != "Not Applicable")
+                        {
+                            _allDecodedValues[kvp.Key] = strValue;
+                        }
+                    }
+                }
 
                 if (string.IsNullOrEmpty(_makeName) && string.IsNullOrEmpty(_decodedVehicle.Model))
                 {
@@ -280,6 +365,21 @@
         _decodedVehicle = null;
         _makeName = string.Empty;
         _originalJson = null;
+        _allDecodedValues.Clear();
+        _showAllValues = false;
+    }
+
+    private static string FormatLabel(string key)
+    {
+        // Convert PascalCase to readable format with spaces
+        var result = new System.Text.StringBuilder();
+        foreach (var c in key)
+        {
+            if (char.IsUpper(c) && result.Length > 0)
+                result.Append(' ');
+            result.Append(c);
+        }
+        return result.ToString();
     }
 
     private async Task ConfirmVehicle()
