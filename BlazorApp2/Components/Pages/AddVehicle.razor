@@ -181,7 +181,11 @@
 
     private void SetInputMethod(InputMethod method)
     {
-        _inputMethod = method;
+        if (_inputMethod != method)
+        {
+            _inputMethod = method;
+            ClearVehicle();
+        }
     }
 
     private void GoBack()

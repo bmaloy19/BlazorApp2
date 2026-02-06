@@ -321,6 +321,14 @@ a:focus-visible {
     box-shadow: none;
 }
 
+.btn-primary:disabled,
+.btn-primary.disabled {
+    background-color: var(--lighter-gray);
+    border-color: var(--lighter-gray);
+    color: var(--gray);
+    opacity: 1;
+}
+
 .btn-secondary {
     color: var(--body-text);
     background-color: var(--white);
@@ -2250,9 +2258,43 @@ html {
 
 /* Add Vehicle Content */
 .add-vehicle-content {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: var(--space-xl);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Responsive: Side by side on larger screens */
+@media (min-width: 992px) {
+    .add-vehicle-content {
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+    }
+    
+    .add-vehicle-content > .selector-card {
+        position: sticky;
+        top: var(--space-lg);
+    }
+    
+    .add-vehicle-content > .vehicle-preview-card {
+        position: sticky;
+        top: var(--space-lg);
+    }
+}
+
+/* When no preview, keep selector card at good width */
+.add-vehicle-content > .selector-card:only-child {
+    width: 550px;
+    max-width: 100%;
+    margin: 0 auto;
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 600px) {
+    .add-vehicle-content > .selector-card:only-child {
+        width: 100%;
+    }
 }
 
 /* Selector Card */
@@ -2261,19 +2303,21 @@ html {
     border: 1px solid var(--card-border);
     border-radius: var(--radius-lg);
     overflow: hidden;
+    height: fit-content;
+    box-sizing: border-box;
 }
 
 .selector-card-header {
     background: var(--black);
     color: var(--white);
-    padding: var(--space-lg);
+    padding: var(--space-md) var(--space-lg);
     border-bottom: 3px solid var(--primary-red);
 }
 
 .selector-card-header h3 {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-base);
     font-weight: 600;
-    margin: 0 0 var(--space-xs) 0;
+    margin: 0 0 2px 0;
 }
 
 /* Loading Makes State */
@@ -2294,24 +2338,32 @@ html {
 }
 
 .selector-form {
-    padding: var(--space-lg);
+    padding: var(--space-md);
     display: flex;
     flex-direction: column;
-    gap: var(--space-md);
+    gap: var(--space-sm);
 }
 
 /* Form Sections */
 .form-section {
     background: var(--lightest-gray);
     border-radius: var(--radius-md);
-    padding: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+}
+
+.form-section .form-group {
+    margin-bottom: var(--space-sm);
+}
+
+.form-section .form-group:last-child {
+    margin-bottom: 0;
 }
 
 .section-title {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
-    margin-bottom: var(--space-md);
+    gap: var(--space-xs);
+    margin-bottom: var(--space-sm);
     font-weight: 600;
     font-size: var(--font-size-sm);
     color: var(--heading-text);
@@ -2321,26 +2373,27 @@ html {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     background: var(--primary-red);
     color: var(--white);
     border-radius: var(--radius-full);
-    font-size: var(--font-size-xs);
+    font-size: 0.65rem;
     font-weight: 700;
 }
 
 .optional-label {
     color: var(--light-gray);
     font-weight: 400;
+    font-size: var(--font-size-xs);
 }
 
 /* Selection Preview */
 .selection-preview {
-    margin-top: var(--space-md);
+    margin-top: var(--space-sm);
     background: linear-gradient(135deg, var(--black) 0%, var(--medium-gray) 100%);
     border-radius: var(--radius-md);
-    padding: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
     color: var(--white);
 }
 
@@ -2420,14 +2473,14 @@ html {
 
 .vin-input {
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-    font-size: var(--font-size-lg);
-    letter-spacing: 0.1em;
-    padding-right: 70px;
+    font-size: var(--font-size-base);
+    letter-spacing: 0.08em;
+    padding-right: 60px;
 }
 
 .vin-counter {
     position: absolute;
-    right: 12px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     font-size: var(--font-size-xs);
@@ -2450,8 +2503,127 @@ html {
 /* Decoded Results */
 .decoded-results {
     border-top: 1px solid var(--card-border);
-    padding: var(--space-lg);
+    padding: var(--space-md);
     background: var(--lightest-gray);
+    overflow: hidden;
+}
+
+.decoded-results .form-section {
+    margin-bottom: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+}
+
+.decoded-results .section-title {
+    margin-bottom: var(--space-sm);
+}
+
+.decoded-results .section-title .btn-clear {
+    margin-left: auto;
+}
+
+/* Decoded Vehicle Preview */
+.decoded-vehicle-preview {
+    background: linear-gradient(135deg, var(--black) 0%, var(--medium-gray) 100%);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+    color: var(--white);
+    margin-bottom: var(--space-sm);
+    overflow: hidden;
+}
+
+.decoded-vehicle-preview .preview-main-info {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-xs);
+}
+
+.decoded-vehicle-preview .preview-year {
+    background: var(--primary-red);
+    color: var(--white);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
+.decoded-vehicle-preview .preview-name {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+}
+
+.decoded-vehicle-preview .preview-secondary {
+    display: flex;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-xs);
+}
+
+.decoded-vehicle-preview .preview-tag {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+}
+
+.decoded-vehicle-preview .preview-specs {
+    display: flex;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+}
+
+.decoded-vehicle-preview .spec-item {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: var(--font-size-xs);
+}
+
+.decoded-vehicle-preview .spec-item:not(:last-child)::after {
+    content: "•";
+    margin-left: var(--space-xs);
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Decoded VIN Display */
+.decoded-vin-display {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-xs) var(--space-sm);
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--card-border);
+    overflow: hidden;
+}
+
+.decoded-vin-display .label {
+    font-size: var(--font-size-xs);
+    color: var(--light-gray);
+    text-transform: uppercase;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.decoded-vin-display .vin-value {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    word-break: break-all;
+}
+
+.decoded-vin-display .vin-value {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--body-text);
+}
+
+/* VIN Counter Complete State */
+.vin-counter.complete {
+    color: var(--success);
+    font-weight: 600;
 }
 
 .decoded-header {
@@ -2546,6 +2718,7 @@ html {
     gap: var(--space-xs);
     max-height: 300px;
     overflow-y: auto;
+    overflow-x: hidden;
     padding-right: var(--space-sm);
 }
 
@@ -2557,6 +2730,8 @@ html {
     background: var(--white);
     border-radius: var(--radius-sm);
     font-size: var(--font-size-xs);
+    min-width: 0;
+    overflow: hidden;
 }
 
 .decoded-item-small .label {

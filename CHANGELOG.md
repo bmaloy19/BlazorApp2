@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added - February 5, 2026
+- **Database Integration** - Vehicles now save/load from PostgreSQL with `VehicleService`. User-vehicle relationships tracked with ownership support.
+- **Enhanced VIN Decoder** - Shows all decoded values with expandable details section. Extracts body class, vehicle type, and series.
+- **CarSelectorCard Redesign** - Step-by-step form with live preview, expanded makes list from database.
+- **Garage & UI Improvements** - Redesigned vehicle cards, improved responsive layouts, extensive CSS updates for cleaner styling.
+
+### TODO - 
+- Implement vehicle editing/deletion
+- add vehicle view pages
+- share vehicles with other users
+- vehicle maintenance tracking
+- light/dark mode toggle
+- user profile management
+- printable vehicle reports (XML/PDF export)
+- calendar integration for service reminders
+- optimize mobile responsiveness
+
 ### Added - February 4, 2026
 - **Garage Page** (`/garage`) - New page to display and manage user's vehicles
   - Card view and list/row view toggle for displaying vehicles
