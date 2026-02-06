@@ -30,7 +30,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         // Configure Vehicle entity
         builder.Entity<Vehicle>(entity =>
         {
-            entity.HasIndex(e => e.Vin).IsUnique();
+            entity.HasIndex(e => e.Vin); // Not unique - different users can have same VIN
             entity.HasIndex(e => e.MakeId);
             entity.HasIndex(e => e.OriginalOwnerUserId);
 

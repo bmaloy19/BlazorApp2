@@ -4,62 +4,139 @@
 <div class="selector-card">
     <div class="selector-card-header">
         <h3>Select Your Vehicle</h3>
-        <p>Choose the make, year, and model of your vehicle</p>
+        <p>Choose your vehicle details manually</p>
     </div>
 
     <div class="selector-form">
-        @* Make Selection *@
-        <div class="form-group">
-            <label for="make">Make</label>
-            <select id="make" class="form-control" @bind="_selectedMakeId" @bind:after="OnMakeChanged">
-                <option value="0">Select Make...</option>
-                @foreach (var make in _makes)
-                {
-                    <option value="@make.Id">@make.Name</option>
-                }
-            </select>
-        </div>
-
-        @* Year Selection *@
-        <div class="form-group">
-            <label for="year">Year</label>
-            <select id="year" class="form-control" @bind="_selectedYear" @bind:after="OnYearChanged" disabled="@(_selectedMakeId == 0)">
-                <option value="0">Select Year...</option>
-                @foreach (var year in _availableYears)
-                {
-                    <option value="@year">@year</option>
-                }
-            </select>
-        </div>
-
-        @* Model Selection *@
-        <div class="form-group">
-            <label for="model">Model</label>
-            <div class="input-with-loader">
-                <select id="model" class="form-control" @bind="_selectedModelName" @bind:after="OnModelChanged" disabled="@(_isLoadingModels || _selectedYear == 0)">
-                    <option value="">Select Model...</option>
-                    @if (_models is not null)
-                    {
-                        @foreach (var model in _models)
+        @* Step 1: Basic Vehicle Info *@
+        <div class="form-section">
+            <div class="section-title">
+                <span class="step-number">1</span>
+                <span>Basic Information</span>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="make">Make</label>
+                    <select id="make" class="form-control" @bind="_selectedMakeId" @bind:after="OnMakeChanged">
+                        <option value="0">Select Make...</option>
+                        @foreach (var make in _makes)
                         {
-                            <option value="@model">@model</option>
+                            <option value="@make.Id">@make.Name</option>
                         }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="year">Year</label>
+                    <select id="year" class="form-control" @bind="_selectedYear" @bind:after="OnYearChanged" disabled="@(_selectedMakeId == 0)">
+                        <option value="0">Select Year...</option>
+                        @foreach (var year in _availableYears)
+                        {
+                            <option value="@year">@year</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="model">Model</label>
+                <div class="input-with-loader">
+                    <select id="model" class="form-control" @bind="_selectedModelName" @bind:after="OnModelChanged" disabled="@(_isLoadingModels || _selectedYear == 0)">
+                        <option value="">Select Model...</option>
+                        @if (_models is not null)
+                        {
+                            @foreach (var model in _models)
+                            {
+                                <option value="@model">@model</option>
+                            }
+                        }
+                    </select>
+                    @if (_isLoadingModels)
+                    {
+                        <div class="input-loader">
+                            <div class="spinner"></div>
+                        </div>
                     }
-                </select>
-                @if (_isLoadingModels)
-                {
-                    <div class="input-loader">
-                        <div class="spinner"></div>
-                    </div>
-                }
+                </div>
             </div>
         </div>
 
-        @* Trim (Optional) *@
-        <div class="form-group">
-            <label for="trim">Trim (Optional)</label>
-            <input type="text" id="trim" class="form-control" @bind="_trim" placeholder="e.g. SE, Sport, Limited" disabled="@(string.IsNullOrEmpty(_selectedModelName))" />
-        </div>
+        @* Step 2: Vehicle Details - Only show after model is selected *@
+        @if (!string.IsNullOrEmpty(_selectedModelName))
+        {
+            <div class="form-section">
+                <div class="section-title">
+                    <span class="step-number">2</span>
+                    <span>Vehicle Details</span>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="trim">Trim / Package</label>
+                        <input type="text" id="trim" class="form-control" @bind="_trim" placeholder="e.g. SE, Sport, Limited" />
+                    </div>
+                    <div class="form-group">
+                        <label for="series">Series</label>
+                        <input type="text" id="series" class="form-control" @bind="_series" placeholder="e.g. 1500, F-150" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bodyClass">Body Style</label>
+                        <select id="bodyClass" class="form-control" @bind="_bodyClass">
+                            <option value="">Select Body Style...</option>
+                            <option value="Sedan">Sedan</option>
+                            <option value="Coupe">Coupe</option>
+                            <option value="Hatchback">Hatchback</option>
+                            <option value="SUV">SUV / Crossover</option>
+                            <option value="Pickup">Pickup Truck</option>
+                            <option value="Van">Van / Minivan</option>
+                            <option value="Wagon">Wagon</option>
+                            <option value="Convertible">Convertible</option>
+                            <option value="Motorcycle">Motorcycle</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleType">Vehicle Type</label>
+                        <select id="vehicleType" class="form-control" @bind="_vehicleType">
+                            <option value="">Select Type...</option>
+                            <option value="PASSENGER CAR">Passenger Car</option>
+                            <option value="TRUCK">Truck</option>
+                            <option value="SUV">SUV</option>
+                            <option value="MOTORCYCLE">Motorcycle</option>
+                            <option value="BUS">Bus</option>
+                            <option value="TRAILER">Trailer</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title">
+                    <span class="step-number">3</span>
+                    <span>Powertrain <span class="optional-label">(Optional)</span></span>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="engine">Engine</label>
+                        <input type="text" id="engine" class="form-control" @bind="_engine" placeholder="e.g. 5.3L V8, 2.0L Turbo" />
+                    </div>
+                    <div class="form-group">
+                        <label for="drivetrain">Drivetrain</label>
+                        <select id="drivetrain" class="form-control" @bind="_drivetrain">
+                            <option value="">Select Drivetrain...</option>
+                            <option value="FWD">Front-Wheel Drive (FWD)</option>
+                            <option value="RWD">Rear-Wheel Drive (RWD)</option>
+                            <option value="AWD">All-Wheel Drive (AWD)</option>
+                            <option value="4WD">4-Wheel Drive (4WD)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        }
 
         @if (!string.IsNullOrEmpty(_errorMessage))
         {
@@ -72,42 +149,194 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
             </svg>
-            Confirm Selection
+            Use This Vehicle
         </button>
     </div>
+
+    @* Selection Preview *@
+    @if (IsSelectionValid)
+    {
+        <div class="selection-preview">
+            <div class="preview-header-mini">
+                <span class="preview-label">Selected Vehicle</span>
+            </div>
+            <div class="preview-content">
+                <div class="preview-main-info">
+                    <span class="preview-year">@_selectedYear</span>
+                    <span class="preview-name">@_makes.First(m => m.Id == _selectedMakeId).Name @_selectedModelName</span>
+                </div>
+                @if (!string.IsNullOrEmpty(_trim) || !string.IsNullOrEmpty(_series))
+                {
+                    <div class="preview-secondary">
+                        @if (!string.IsNullOrEmpty(_series))
+                        {
+                            <span class="preview-tag">@_series</span>
+                        }
+                        @if (!string.IsNullOrEmpty(_trim))
+                        {
+                            <span class="preview-tag">@_trim</span>
+                        }
+                    </div>
+                }
+                <div class="preview-specs">
+                    @if (!string.IsNullOrEmpty(_bodyClass))
+                    {
+                        <span class="spec-item">@_bodyClass</span>
+                    }
+                    @if (!string.IsNullOrEmpty(_engine))
+                    {
+                        <span class="spec-item">@_engine</span>
+                    }
+                    @if (!string.IsNullOrEmpty(_drivetrain))
+                    {
+                        <span class="spec-item">@_drivetrain</span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
     [Parameter]
     public EventCallback<(Vehicle Vehicle, string MakeName)> OnVehicleSelected { get; set; }
 
-    // Temp makes list (will be replaced with DB call)
+    // Makes list from database - Id is database ID, ManufacturerCode is NHTSA API MakeId
     private readonly List<MakeOption> _makes = new()
     {
-        new MakeOption { Id = 460, Name = "FORD" },
-        new MakeOption { Id = 473, Name = "MAZDA" },
-        new MakeOption { Id = 474, Name = "MERCURY" }
+        new MakeOption { Id = 1, Name = "ACG", ManufacturerCode = "457" },
+        new MakeOption { Id = 2, Name = "ACURA", ManufacturerCode = "475" },
+        new MakeOption { Id = 3, Name = "ALFA ROMEO", ManufacturerCode = "493" },
+        new MakeOption { Id = 4, Name = "AMERICAN CUSTOM GOLF CARS, INC.", ManufacturerCode = "1635" },
+        new MakeOption { Id = 5, Name = "AMERICAN MOTORS", ManufacturerCode = "1124" },
+        new MakeOption { Id = 6, Name = "ASTON MARTIN", ManufacturerCode = "440" },
+        new MakeOption { Id = 7, Name = "BLUE BIRD", ManufacturerCode = "505" },
+        new MakeOption { Id = 8, Name = "BMW", ManufacturerCode = "452" },
+        new MakeOption { Id = 9, Name = "BRIGHTDROP", ManufacturerCode = "11949" },
+        new MakeOption { Id = 10, Name = "BUELL", ManufacturerCode = "590" },
+        new MakeOption { Id = 11, Name = "BUELL (EBR)", ManufacturerCode = "446" },
+        new MakeOption { Id = 12, Name = "BUGATTI", ManufacturerCode = "454" },
+        new MakeOption { Id = 13, Name = "BUICK", ManufacturerCode = "468" },
+        new MakeOption { Id = 14, Name = "CADILLAC", ManufacturerCode = "469" },
+        new MakeOption { Id = 15, Name = "CATERPILLAR", ManufacturerCode = "522" },
+        new MakeOption { Id = 16, Name = "CHAIRIOT MOBILITY", ManufacturerCode = "494" },
+        new MakeOption { Id = 17, Name = "CHEVROLET", ManufacturerCode = "467" },
+        new MakeOption { Id = 18, Name = "CHRYSLER", ManufacturerCode = "477" },
+        new MakeOption { Id = 19, Name = "CLUB CAR", ManufacturerCode = "484" },
+        new MakeOption { Id = 20, Name = "COACHWORKS", ManufacturerCode = "489" },
+        new MakeOption { Id = 21, Name = "COOPER CYCLES", ManufacturerCode = "459" },
+        new MakeOption { Id = 22, Name = "CRUISE", ManufacturerCode = "10647" },
+        new MakeOption { Id = 23, Name = "DAEWOO", ManufacturerCode = "1077" },
+        new MakeOption { Id = 24, Name = "DATSUN", ManufacturerCode = "5657" },
+        new MakeOption { Id = 25, Name = "DODGE", ManufacturerCode = "476" },
+        new MakeOption { Id = 26, Name = "EAGLE", ManufacturerCode = "2408" },
+        new MakeOption { Id = 27, Name = "FIAT", ManufacturerCode = "492" },
+        new MakeOption { Id = 28, Name = "FORD", ManufacturerCode = "460" },
+        new MakeOption { Id = 29, Name = "FREIGHTLINER", ManufacturerCode = "450" },
+        new MakeOption { Id = 30, Name = "GENESIS", ManufacturerCode = "5083" },
+        new MakeOption { Id = 31, Name = "GEO", ManufacturerCode = "1146" },
+        new MakeOption { Id = 32, Name = "GMC", ManufacturerCode = "472" },
+        new MakeOption { Id = 33, Name = "GOLF CARS OF ARIZONA", ManufacturerCode = "486" },
+        new MakeOption { Id = 34, Name = "GREAT DANE TRAILERS", ManufacturerCode = "520" },
+        new MakeOption { Id = 35, Name = "HINO", ManufacturerCode = "514" },
+        new MakeOption { Id = 36, Name = "HMC", ManufacturerCode = "5714" },
+        new MakeOption { Id = 37, Name = "HOLDEN", ManufacturerCode = "470" },
+        new MakeOption { Id = 38, Name = "HOMBILT TRAILERS", ManufacturerCode = "455" },
+        new MakeOption { Id = 39, Name = "HONDA", ManufacturerCode = "474" },
+        new MakeOption { Id = 40, Name = "HUMMER", ManufacturerCode = "951" },
+        new MakeOption { Id = 41, Name = "HYUNDAI", ManufacturerCode = "498" },
+        new MakeOption { Id = 42, Name = "IC BUS", ManufacturerCode = "524" },
+        new MakeOption { Id = 43, Name = "IMPERIAL", ManufacturerCode = "5798" },
+        new MakeOption { Id = 44, Name = "INFINITI", ManufacturerCode = "480" },
+        new MakeOption { Id = 45, Name = "INTERNATIONAL", ManufacturerCode = "526" },
+        new MakeOption { Id = 46, Name = "ISUZU", ManufacturerCode = "542" },
+        new MakeOption { Id = 47, Name = "JAGUAR", ManufacturerCode = "442" },
+        new MakeOption { Id = 48, Name = "JEEP", ManufacturerCode = "483" },
+        new MakeOption { Id = 49, Name = "JIALING", ManufacturerCode = "447" },
+        new MakeOption { Id = 50, Name = "KAWASAKI", ManufacturerCode = "510" },
+        new MakeOption { Id = 51, Name = "KENWORTH", ManufacturerCode = "532" },
+        new MakeOption { Id = 52, Name = "KIA", ManufacturerCode = "499" },
+        new MakeOption { Id = 53, Name = "LANCIA", ManufacturerCode = "497" },
+        new MakeOption { Id = 54, Name = "LAND ROVER", ManufacturerCode = "444" },
+        new MakeOption { Id = 55, Name = "LATITUDE", ManufacturerCode = "461" },
+        new MakeOption { Id = 56, Name = "LEXUS", ManufacturerCode = "515" },
+        new MakeOption { Id = 57, Name = "LINCOLN", ManufacturerCode = "464" },
+        new MakeOption { Id = 58, Name = "LOTUS", ManufacturerCode = "466" },
+        new MakeOption { Id = 59, Name = "MACK", ManufacturerCode = "490" },
+        new MakeOption { Id = 60, Name = "MASERATI", ManufacturerCode = "443" },
+        new MakeOption { Id = 61, Name = "MAZDA", ManufacturerCode = "473" },
+        new MakeOption { Id = 62, Name = "MAYBACH", ManufacturerCode = "533" },
+        new MakeOption { Id = 63, Name = "MERCEDES-BENZ", ManufacturerCode = "449" },
+        new MakeOption { Id = 64, Name = "MERCURY", ManufacturerCode = "465" },
+        new MakeOption { Id = 65, Name = "MILLS MANUFACTURING", ManufacturerCode = "501" },
+        new MakeOption { Id = 66, Name = "MINI", ManufacturerCode = "456" },
+        new MakeOption { Id = 67, Name = "MITSUBISHI", ManufacturerCode = "481" },
+        new MakeOption { Id = 68, Name = "MITSUBISHI FUSO", ManufacturerCode = "528" },
+        new MakeOption { Id = 69, Name = "MOTORCYCLE MACHINE SHOP SERVICES", ManufacturerCode = "453" },
+        new MakeOption { Id = 70, Name = "NABI", ManufacturerCode = "507" },
+        new MakeOption { Id = 71, Name = "NAVISTAR", ManufacturerCode = "491" },
+        new MakeOption { Id = 72, Name = "NISSAN", ManufacturerCode = "478" },
+        new MakeOption { Id = 73, Name = "OLDSMOBILE", ManufacturerCode = "4162" },
+        new MakeOption { Id = 74, Name = "OPEL", ManufacturerCode = "471" },
+        new MakeOption { Id = 75, Name = "OPTIMA", ManufacturerCode = "506" },
+        new MakeOption { Id = 76, Name = "OWOSSO", ManufacturerCode = "519" },
+        new MakeOption { Id = 77, Name = "PACCAR", ManufacturerCode = "" },
+        new MakeOption { Id = 78, Name = "PETERBILT", ManufacturerCode = "495" },
+        new MakeOption { Id = 79, Name = "PLYMOUTH", ManufacturerCode = "2409" },
+        new MakeOption { Id = 80, Name = "PONTIAC", ManufacturerCode = "536" },
+        new MakeOption { Id = 81, Name = "QUEST MANUFACTURING", ManufacturerCode = "479" },
+        new MakeOption { Id = 82, Name = "RAM", ManufacturerCode = "496" },
+        new MakeOption { Id = 83, Name = "RENAULT", ManufacturerCode = "13647" },
+        new MakeOption { Id = 84, Name = "RIZON", ManufacturerCode = "12667" },
+        new MakeOption { Id = 85, Name = "ROLLS-ROYCE", ManufacturerCode = "445" },
+        new MakeOption { Id = 86, Name = "SAAB", ManufacturerCode = "572" },
+        new MakeOption { Id = 87, Name = "SATURN", ManufacturerCode = "1056" },
+        new MakeOption { Id = 88, Name = "SMART", ManufacturerCode = "504" },
+        new MakeOption { Id = 89, Name = "SUBARU", ManufacturerCode = "523" },
+        new MakeOption { Id = 90, Name = "SUZUKI", ManufacturerCode = "509" },
+        new MakeOption { Id = 91, Name = "TESLA", ManufacturerCode = "441" },
+        new MakeOption { Id = 92, Name = "TH!NK", ManufacturerCode = "1755" },
+        new MakeOption { Id = 93, Name = "THOMAS BUILT", ManufacturerCode = "535" },
+        new MakeOption { Id = 94, Name = "TOYOTA", ManufacturerCode = "448" },
+        new MakeOption { Id = 95, Name = "UD", ManufacturerCode = "518" },
+        new MakeOption { Id = 96, Name = "VOLKSWAGEN", ManufacturerCode = "482" },
+        new MakeOption { Id = 97, Name = "VOLVO", ManufacturerCode = "485" },
+        new MakeOption { Id = 98, Name = "VOLVO TRUCK", ManufacturerCode = "487" },
+        new MakeOption { Id = 99, Name = "WESTERN STAR", ManufacturerCode = "4512" },
+        new MakeOption { Id = 100, Name = "WESTWARD INDUSTRIES", ManufacturerCode = "463" },
+        new MakeOption { Id = 101, Name = "WHITEGMC", ManufacturerCode = "5426" },
+        new MakeOption { Id = 102, Name = "WORKHORSE", ManufacturerCode = "525" }
     };
 
     private List<int> _availableYears = Enumerable.Range(1980, DateTime.Now.Year - 1980 + 2).Reverse().ToList();
     private List<string>? _models;
 
+    // Basic Info
     private int _selectedMakeId;
     private int _selectedYear;
     private string _selectedModelName = string.Empty;
+    
+    // Vehicle Details
     private string _trim = string.Empty;
+    private string _series = string.Empty;
+    private string _bodyClass = string.Empty;
+    private string _vehicleType = string.Empty;
+    
+    // Powertrain
+    private string _engine = string.Empty;
+    private string _drivetrain = string.Empty;
     
     private bool _isLoadingModels;
     private string? _errorMessage;
 
     private bool IsSelectionValid => _selectedMakeId > 0 && _selectedYear > 0 && !string.IsNullOrEmpty(_selectedModelName);
 
+
     private void OnMakeChanged()
     {
-        // Reset dependent fields
         _selectedYear = 0;
         _selectedModelName = string.Empty;
-        _trim = string.Empty;
+        ResetDetails();
         _models = null;
         _errorMessage = null;
     }
@@ -115,7 +344,7 @@
     private async Task OnYearChanged()
     {
         _selectedModelName = string.Empty;
-        _trim = string.Empty;
+        ResetDetails();
         _models = null;
         _errorMessage = null;
 
@@ -125,6 +354,16 @@
         await LoadModels();
     }
 
+    private void ResetDetails()
+    {
+        _trim = string.Empty;
+        _series = string.Empty;
+        _bodyClass = string.Empty;
+        _vehicleType = string.Empty;
+        _engine = string.Empty;
+        _drivetrain = string.Empty;
+    }
+
     private async Task LoadModels()
     {
         _isLoadingModels = true;
@@ -132,8 +371,9 @@
 
         try
         {
-            // Call NHTSA API to get models for the make and year
-            var url = $"https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeIdYear/makeId/{_selectedMakeId}/modelyear/{_selectedYear}?format=json";
+            // Use ManufacturerCode (NHTSA MakeId) for the API call
+            var selectedMake = _makes.First(m => m.Id == _selectedMakeId);
+            var url = $"https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeIdYear/makeId/{selectedMake.ManufacturerCode}/modelyear/{_selectedYear}?format=json";
             var response = await Http.GetFromJsonAsync<ModelApiResponse>(url);
 
             if (response?.Results is not null)
@@ -177,8 +417,13 @@
         {
             MakeId = _selectedMakeId,
             Model = _selectedModelName,
-            Year = (short)_selectedYear,
-            Trim = string.IsNullOrWhiteSpace(_trim) ? null : _trim
+            Year = _selectedYear,
+            Trim = string.IsNullOrWhiteSpace(_trim) ? null : _trim,
+            Series = string.IsNullOrWhiteSpace(_series) ? null : _series,
+            BodyClass = string.IsNullOrWhiteSpace(_bodyClass) ? null : _bodyClass,
+            VehicleType = string.IsNullOrWhiteSpace(_vehicleType) ? null : _vehicleType,
+            Engine = string.IsNullOrWhiteSpace(_engine) ? null : _engine,
+            Drivetrain = string.IsNullOrWhiteSpace(_drivetrain) ? null : _drivetrain
         };
 
         await OnVehicleSelected.InvokeAsync((vehicle, selectedMake.Name));
@@ -187,8 +432,9 @@
     // Internal classes
     private class MakeOption
     {
-        public int Id { get; set; }
+        public int Id { get; set; }  // Database ID
         public string Name { get; set; } = string.Empty;
+        public string ManufacturerCode { get; set; } = string.Empty;  // NHTSA API MakeId
     }
 
     private class ModelApiResponse

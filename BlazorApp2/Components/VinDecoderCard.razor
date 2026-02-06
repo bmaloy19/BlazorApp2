@@ -8,30 +8,36 @@
     </div>
 
     <div class="selector-form">
-        <div class="form-group">
-            <label for="vin">VIN</label>
-            <div class="vin-input-wrapper">
-                <input type="text" 
-                       id="vin" 
-                       class="form-control vin-input @(_vinError is not null ? "is-invalid" : "")" 
-                       @bind="_vin" 
-                       @bind:event="oninput"
-                       @onkeyup="OnVinInput"
-                       placeholder="Enter 17-character VIN" 
-                       maxlength="17" 
-                       style="text-transform: uppercase;" />
-                <span class="vin-counter">@_vin.Length / 17</span>
+        <div class="form-section">
+            <div class="section-title">
+                <span class="step-number">1</span>
+                <span>Enter VIN</span>
             </div>
-            @if (_vinError is not null)
-            {
-                <div class="validation-message">@_vinError</div>
-            }
-        </div>
+            
+            <div class="form-group">
+                <label for="vin">Vehicle Identification Number</label>
+                <div class="vin-input-wrapper">
+                    <input type="text" 
+                           id="vin" 
+                           class="form-control vin-input @(_vinError is not null ? "is-invalid" : "")" 
+                           @bind="_vin" 
+                           @bind:event="oninput"
+                           @onkeyup="OnVinInput"
+                           placeholder="Enter 17-character VIN" 
+                           maxlength="17" 
+                           style="text-transform: uppercase;" />
+                    <span class="vin-counter @(_vin.Length == 17 ? "complete" : "")">@_vin.Length / 17</span>
+                </div>
+                @if (_vinError is not null)
+                {
+                    <div class="validation-message">@_vinError</div>
+                }
+            </div>
 
-        <div class="form-group">
-            <label for="modelYear">Model Year (Optional)</label>
-            <input type="number" id="modelYear" class="form-control" @bind="_modelYear" placeholder="Helps improve accuracy" min="1980" max="@(DateTime.Now.Year + 1)" />
-            <span class="form-text">Providing the year can improve decode accuracy</span>
+            <div class="form-group">
+                <label for="modelYear">Model Year <span class="optional-label">(Optional)</span></label>
+                <input type="number" id="modelYear" class="form-control" @bind="_modelYear" placeholder="Helps improve accuracy" min="1980" max="@(DateTime.Now.Year + 1)" />
+            </div>
         </div>
 
         @if (!string.IsNullOrEmpty(_errorMessage))
@@ -61,75 +67,58 @@
     @if (_decodedVehicle is not null)
     {
         <div class="decoded-results">
-            <div class="decoded-header">
-                <h4>Decoded Information</h4>
-                <button class="btn-clear" @onclick="ClearResults">Clear</button>
-            </div>
-            
-            <div class="decoded-grid">
-                @if (!string.IsNullOrEmpty(_makeName))
-                {
-                    <div class="decoded-item">
-                        <span class="label">Make</span>
-                        <span class="value">@_makeName</span>
+            <div class="form-section">
+                <div class="section-title">
+                    <span class="step-number">2</span>
+                    <span>Decoded Information</span>
+                    <button class="btn-clear" @onclick="ClearResults">Clear</button>
+                </div>
+                
+                <div class="decoded-vehicle-preview">
+                    <div class="preview-main-info">
+                        @if (_decodedVehicle.Year.HasValue)
+                        {
+                            <span class="preview-year">@_decodedVehicle.Year</span>
+                        }
+                        <span class="preview-name">@_makeName @_decodedVehicle.Model</span>
                     </div>
-                }
-                @if (!string.IsNullOrEmpty(_decodedVehicle.Model))
-                {
-                    <div class="decoded-item">
-                        <span class="label">Model</span>
-                        <span class="value">@_decodedVehicle.Model</span>
+                    @if (!string.IsNullOrEmpty(_decodedVehicle.Series) || !string.IsNullOrEmpty(_decodedVehicle.Trim))
+                    {
+                        <div class="preview-secondary">
+                            @if (!string.IsNullOrEmpty(_decodedVehicle.Series))
+                            {
+                                <span class="preview-tag">@_decodedVehicle.Series</span>
+                            }
+                            @if (!string.IsNullOrEmpty(_decodedVehicle.Trim))
+                            {
+                                <span class="preview-tag">@_decodedVehicle.Trim</span>
+                            }
+                        </div>
+                    }
+                    <div class="preview-specs">
+                        @if (!string.IsNullOrEmpty(_decodedVehicle.BodyClass))
+                        {
+                            <span class="spec-item">@_decodedVehicle.BodyClass</span>
+                        }
+                        @if (!string.IsNullOrEmpty(_decodedVehicle.VehicleType))
+                        {
+                            <span class="spec-item">@_decodedVehicle.VehicleType</span>
+                        }
+                        @if (!string.IsNullOrEmpty(_decodedVehicle.Engine))
+                        {
+                            <span class="spec-item">@_decodedVehicle.Engine</span>
+                        }
+                        @if (!string.IsNullOrEmpty(_decodedVehicle.Drivetrain))
+                        {
+                            <span class="spec-item">@_decodedVehicle.Drivetrain</span>
+                        }
                     </div>
-                }
-                @if (_decodedVehicle.Year.HasValue)
-                {
-                    <div class="decoded-item">
-                        <span class="label">Year</span>
-                        <span class="value">@_decodedVehicle.Year</span>
-                    </div>
-                }
-                @if (!string.IsNullOrEmpty(_decodedVehicle.Series))
-                {
-                    <div class="decoded-item">
-                        <span class="label">Series</span>
-                        <span class="value">@_decodedVehicle.Series</span>
-                    </div>
-                }
-                @if (!string.IsNullOrEmpty(_decodedVehicle.Trim))
-                {
-                    <div class="decoded-item">
-                        <span class="label">Trim</span>
-                        <span class="value">@_decodedVehicle.Trim</span>
-                    </div>
-                }
-                @if (!string.IsNullOrEmpty(_decodedVehicle.BodyClass))
-                {
-                    <div class="decoded-item">
-                        <span class="label">Body</span>
-                        <span class="value">@_decodedVehicle.BodyClass</span>
-                    </div>
-                }
-                @if (!string.IsNullOrEmpty(_decodedVehicle.VehicleType))
-                {
-                    <div class="decoded-item">
-                        <span class="label">Type</span>
-                        <span class="value">@_decodedVehicle.VehicleType</span>
-                    </div>
-                }
-                @if (!string.IsNullOrEmpty(_decodedVehicle.Engine))
-                {
-                    <div class="decoded-item">
-                        <span class="label">Engine</span>
-                        <span class="value">@_decodedVehicle.Engine</span>
-                    </div>
-                }
-                @if (!string.IsNullOrEmpty(_decodedVehicle.Drivetrain))
-                {
-                    <div class="decoded-item">
-                        <span class="label">Drivetrain</span>
-                        <span class="value">@_decodedVehicle.Drivetrain</span>
-                    </div>
-                }
+                </div>
+                
+                <div class="decoded-vin-display">
+                    <span class="label">VIN</span>
+                    <span class="vin-value">@_decodedVehicle.Vin</span>
+                </div>
             </div>
 
             @* Show all additional non-null API values *@
@@ -182,12 +171,35 @@
     [Parameter]
     public EventCallback<(Vehicle Vehicle, string MakeName)> OnVehicleDecoded { get; set; }
 
-    // Known makes mapping (temp - will be from DB)
+    // Makes mapping from database - Key is make name (uppercase), Value is database ID
     private readonly Dictionary<string, int> _knownMakes = new(StringComparer.OrdinalIgnoreCase)
     {
-        { "FORD", 460 },
-        { "MAZDA", 473 },
-        { "MERCURY", 474 }
+        { "ACG", 1 }, { "ACURA", 2 }, { "ALFA ROMEO", 3 }, { "AMERICAN CUSTOM GOLF CARS, INC.", 4 },
+        { "AMERICAN MOTORS", 5 }, { "ASTON MARTIN", 6 }, { "BLUE BIRD", 7 }, { "BMW", 8 },
+        { "BRIGHTDROP", 9 }, { "BUELL", 10 }, { "BUELL (EBR)", 11 }, { "BUGATTI", 12 },
+        { "BUICK", 13 }, { "CADILLAC", 14 }, { "CATERPILLAR", 15 }, { "CHAIRIOT MOBILITY", 16 },
+        { "CHEVROLET", 17 }, { "CHRYSLER", 18 }, { "CLUB CAR", 19 }, { "COACHWORKS", 20 },
+        { "COOPER CYCLES", 21 }, { "CRUISE", 22 }, { "DAEWOO", 23 }, { "DATSUN", 24 },
+        { "DODGE", 25 }, { "EAGLE", 26 }, { "FIAT", 27 }, { "FORD", 28 },
+        { "FREIGHTLINER", 29 }, { "GENESIS", 30 }, { "GEO", 31 }, { "GMC", 32 },
+        { "GOLF CARS OF ARIZONA", 33 }, { "GREAT DANE TRAILERS", 34 }, { "HINO", 35 }, { "HMC", 36 },
+        { "HOLDEN", 37 }, { "HOMBILT TRAILERS", 38 }, { "HONDA", 39 }, { "HUMMER", 40 },
+        { "HYUNDAI", 41 }, { "IC BUS", 42 }, { "IMPERIAL", 43 }, { "INFINITI", 44 },
+        { "INTERNATIONAL", 45 }, { "ISUZU", 46 }, { "JAGUAR", 47 }, { "JEEP", 48 },
+        { "JIALING", 49 }, { "KAWASAKI", 50 }, { "KENWORTH", 51 }, { "KIA", 52 },
+        { "LANCIA", 53 }, { "LAND ROVER", 54 }, { "LATITUDE", 55 }, { "LEXUS", 56 },
+        { "LINCOLN", 57 }, { "LOTUS", 58 }, { "MACK", 59 }, { "MASERATI", 60 },
+        { "MAZDA", 61 }, { "MAYBACH", 62 }, { "MERCEDES-BENZ", 63 }, { "MERCURY", 64 },
+        { "MILLS MANUFACTURING", 65 }, { "MINI", 66 }, { "MITSUBISHI", 67 }, { "MITSUBISHI FUSO", 68 },
+        { "MOTORCYCLE MACHINE SHOP SERVICES", 69 }, { "NABI", 70 }, { "NAVISTAR", 71 }, { "NISSAN", 72 },
+        { "OLDSMOBILE", 73 }, { "OPEL", 74 }, { "OPTIMA", 75 }, { "OWOSSO", 76 },
+        { "PACCAR", 77 }, { "PETERBILT", 78 }, { "PLYMOUTH", 79 }, { "PONTIAC", 80 },
+        { "QUEST MANUFACTURING", 81 }, { "RAM", 82 }, { "RENAULT", 83 }, { "RIZON", 84 },
+        { "ROLLS-ROYCE", 85 }, { "SAAB", 86 }, { "SATURN", 87 }, { "SMART", 88 },
+        { "SUBARU", 89 }, { "SUZUKI", 90 }, { "TESLA", 91 }, { "TH!NK", 92 },
+        { "THOMAS BUILT", 93 }, { "TOYOTA", 94 }, { "UD", 95 }, { "VOLKSWAGEN", 96 },
+        { "VOLVO", 97 }, { "VOLVO TRUCK", 98 }, { "WESTERN STAR", 99 }, { "WESTWARD INDUSTRIES", 100 },
+        { "WHITEGMC", 101 }, { "WORKHORSE", 102 }
     };
 
     private string _vin = string.Empty;

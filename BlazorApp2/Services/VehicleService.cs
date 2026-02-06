@@ -60,6 +60,19 @@ public class VehicleService
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         
+        // Check if THIS user already has a vehicle with this VIN
+        if (!string.IsNullOrEmpty(vehicle.Vin))
+        {
+            var userAlreadyHasVin = await context.UserVehicles
+                .Include(uv => uv.Vehicle)
+                .AnyAsync(uv => uv.UserId == userId && uv.Vehicle.Vin == vehicle.Vin);
+            
+            if (userAlreadyHasVin)
+            {
+                throw new InvalidOperationException("You already have a vehicle with this VIN in your garage.");
+            }
+        }
+        
         // Check if user has any vehicles to determine if this should be primary
         var hasVehicles = await context.UserVehicles.AnyAsync(uv => uv.UserId == userId);
         
