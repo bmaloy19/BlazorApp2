@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added - February 8, 2026
+- **Vehicle Details Page** (`/garage/vehicle/{id}`) - View and manage individual vehicles
+  - Hero section with vehicle info, edit/delete buttons
+  - Odometer & hours tracking card with toggle for hour meters
+  - Vehicle information card (full-width) with all details
+  - Maintenance summary and service history cards
+  - Delete confirmation modal with proper backdrop
+- **Clickable Garage Cards** - Cards now navigate directly to vehicle details (removed separate View button)
+- **Vehicle Delete** - Full delete functionality with cascade removal of service records
+
+### TODO -
+- vehicle maintenance tracking
+- share vehicles with other users
+- light/dark mode toggle
+- user profile management
+- printable vehicle reports (XML/PDF export)
+- calendar integration for service reminders
+- optimize mobile responsiveness
+- add odomedeter auto tracking.
+
 ### Added - February 5, 2026
 - **Database Integration** - Vehicles now save/load from PostgreSQL with `VehicleService`. User-vehicle relationships tracked with ownership support.
 - **Enhanced VIN Decoder** - Shows all decoded values with expandable details section. Extracts body class, vehicle type, and series.

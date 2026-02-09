@@ -46,11 +46,8 @@
             @foreach (var userVehicle in _userVehicles)
             {
                 var vehicle = userVehicle.Vehicle;
-                var displayName = !string.IsNullOrEmpty(userVehicle.Nickname) 
-                    ? userVehicle.Nickname 
-                    : $"{vehicle.Make?.Name} {vehicle.Model}";
                 
-                <div class="vehicle-card @(userVehicle.IsPrimary ? "primary" : "")">
+                <div class="vehicle-card @(userVehicle.IsPrimary ? "primary" : "")" @onclick="() => ViewVehicle(userVehicle)">
                     <div class="vehicle-card-header">
                         <div class="vehicle-year-badge">@vehicle.Year</div>
                         <div class="vehicle-badges">
@@ -66,7 +63,7 @@
                     </div>
                     
                     <div class="vehicle-image-placeholder">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679c.033.161.049.325.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.807.807 0 0 0 .381-.404l.792-1.848ZM3 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2H6ZM2.906 5.189a.51.51 0 0 0 .497.731c.91-.073 3.35-.17 4.597-.17 1.247 0 3.688.097 4.597.17a.51.51 0 0 0 .497-.731l-.956-1.913A.5.5 0 0 0 11.691 3H4.309a.5.5 0 0 0-.447.276L2.906 5.19Z"/>
                         </svg>
                     </div>
@@ -108,44 +105,36 @@
                         }
                     </div>
                     
-                    <div class="vehicle-details">
-                        @if (!string.IsNullOrEmpty(vehicle.Color))
-                        {
-                            <div class="detail-item">
-                                <span class="detail-label">Color</span>
-                                <span class="detail-value">@vehicle.Color</span>
-                            </div>
-                        }
-                        @if (!string.IsNullOrEmpty(vehicle.LicensePlate))
-                        {
-                            <div class="detail-item">
-                                <span class="detail-label">Plate</span>
-                                <span class="detail-value">@vehicle.LicensePlate</span>
-                            </div>
-                        }
-                        @if (vehicle.CurrentMiles.HasValue)
-                        {
-                            <div class="detail-item">
-                                <span class="detail-label">Miles</span>
-                                <span class="detail-value">@vehicle.CurrentMiles.Value.ToString("N0")</span>
-                            </div>
-                        }
-                    </div>
+                    @if (!string.IsNullOrEmpty(vehicle.Color) || !string.IsNullOrEmpty(vehicle.LicensePlate) || vehicle.CurrentMiles.HasValue)
+                    {
+                        <div class="vehicle-card-footer">
+                            @if (vehicle.CurrentMiles.HasValue)
+                            {
+                                <div class="footer-stat">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z"/>
+                                        <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z"/>
+                                    </svg>
+                                    <span>@vehicle.CurrentMiles.Value.ToString("N0") mi</span>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(vehicle.Color))
+                            {
+                                <div class="footer-stat">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M12.433 10.07C14.133 10.585 16 11.15 16 8a8 8 0 1 0-8 8c1.996 0 1.826-1.504 1.649-3.08-.124-1.101-.252-2.237.351-2.92.465-.527 1.42-.237 2.433.07zM8 5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM5 6.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm.5 6.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+                                    </svg>
+                                    <span>@vehicle.Color</span>
+                                </div>
+                            }
+                        </div>
+                    }
                     
-                    <div class="vehicle-actions">
-                        <button class="btn-vehicle-action" @onclick="() => ViewVehicle(userVehicle)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
-                                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
-                            </svg>
-                            View
-                        </button>
-                        <button class="btn-vehicle-action btn-edit" @onclick="() => EditVehicle(userVehicle)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-                            </svg>
-                            Edit
-                        </button>
+                    <div class="card-hover-indicator">
+                        <span>View Details</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
                     </div>
                 </div>
             }
@@ -170,7 +159,7 @@
             {
                 var vehicle = userVehicle.Vehicle;
                 
-                <div class="vehicle-row @(userVehicle.IsPrimary ? "primary" : "")">
+                <div class="vehicle-row @(userVehicle.IsPrimary ? "primary" : "")" @onclick="() => ViewVehicle(userVehicle)">
                     <div class="vehicle-row-main-section">
                         <div class="vehicle-row-header">
                             <span class="vehicle-row-year">@vehicle.Year</span>
@@ -209,18 +198,10 @@
                             <span class="primary-badge-small">Primary</span>
                         }
                     </div>
-                    <div class="vehicle-row-actions">
-                        <button class="btn-vehicle-action" @onclick="() => ViewVehicle(userVehicle)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
-                                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
-                            </svg>
-                        </button>
-                        <button class="btn-vehicle-action btn-edit" @onclick="() => EditVehicle(userVehicle)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
-                            </svg>
-                        </button>
+                    <div class="vehicle-row-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
                     </div>
                 </div>
             }
@@ -290,13 +271,6 @@
     
     private void ViewVehicle(UserVehicle userVehicle)
     {
-        // TODO: Navigate to vehicle details page
         NavigationManager.NavigateTo($"/garage/vehicle/{userVehicle.VehicleId}");
-    }
-    
-    private void EditVehicle(UserVehicle userVehicle)
-    {
-        // TODO: Navigate to edit page or open modal
-        NavigationManager.NavigateTo($"/garage/vehicle/{userVehicle.VehicleId}/edit");
     }
 }

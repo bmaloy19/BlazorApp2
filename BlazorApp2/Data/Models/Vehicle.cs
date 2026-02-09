@@ -29,7 +29,7 @@ public class Vehicle
     [MaxLength(120)]
     [Column("trim")]
     public string? Trim { get; set; }
-
+    
     [MaxLength(60)]
     [Column("body_class")]
     public string? BodyClass { get; set; }

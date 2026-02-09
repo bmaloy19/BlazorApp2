@@ -235,14 +235,32 @@ public class VehicleService
         
         var vehicle = await context.Vehicles
             .Include(v => v.UserVehicles)
+            .Include(v => v.ServiceRecords)
             .FirstOrDefaultAsync(v => v.Id == vehicleId);
         
         if (vehicle == null)
             return false;
 
-        // Only the original owner can delete
-        if (vehicle.OriginalOwnerUserId != userId)
+        // Check if user is the original owner OR has "owner" role in UserVehicles
+        var isOriginalOwner = vehicle.OriginalOwnerUserId == userId;
+        var userVehicle = vehicle.UserVehicles.FirstOrDefault(uv => uv.UserId == userId);
+        var isOwnerRole = userVehicle?.Role == "owner";
+        
+        // Allow delete if user is original owner OR has owner role
+        if (!isOriginalOwner && !isOwnerRole)
             return false;
+
+        // Remove all service records first (cascade should handle this, but being explicit)
+        if (vehicle.ServiceRecords.Any())
+        {
+            context.ServiceRecords.RemoveRange(vehicle.ServiceRecords);
+        }
+        
+        // Remove all user-vehicle relationships
+        if (vehicle.UserVehicles.Any())
+        {
+            context.UserVehicles.RemoveRange(vehicle.UserVehicles);
+        }
 
         context.Vehicles.Remove(vehicle);
         await context.SaveChangesAsync();

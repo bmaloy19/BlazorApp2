@@ -1,0 +1,671 @@
+@page "/garage/vehicle/{VehicleId:long}"
+@rendermode InteractiveServer
+@using BlazorApp2.Data.Models
+@using BlazorApp2.Services
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+@inject VehicleService VehicleService
+@inject ServiceRecordService ServiceRecordService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>@(_vehicle != null ? $"{_vehicle.Year} {_vehicle.Make?.Name} {_vehicle.Model}" : "Vehicle Details")</PageTitle>
+
+<div class="vehicle-details-container">
+    @if (_isLoading)
+    {
+        <div class="loading-container">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>Loading vehicle details...</p>
+        </div>
+    }
+    else if (_vehicle is null)
+    {
+        <div class="not-found-container">
+            <div class="not-found-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+                </svg>
+            </div>
+            <h2>Vehicle Not Found</h2>
+            <p>The vehicle you're looking for doesn't exist or you don't have access to it.</p>
+            <button class="btn btn-primary" @onclick="GoBack">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+                Back to Garage
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="vehicle-details-header">
+            <button class="btn-back" @onclick="GoBack">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+                Back to Garage
+            </button>
+            <div class="header-actions">
+                @if (!_isEditing)
+                {
+                    <button class="btn-action btn-edit" @onclick="StartEditing">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                        </svg>
+                        Edit
+                    </button>
+                    <button class="btn-action btn-delete" @onclick="ShowDeleteConfirmation">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                        Delete
+                    </button>
+                }
+                else
+                {
+                    <button class="btn-action btn-cancel" @onclick="CancelEditing" disabled="@_isSaving">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                        </svg>
+                        Cancel
+                    </button>
+                    <button class="btn-action btn-save" @onclick="SaveChanges" disabled="@_isSaving">
+                        @if (_isSaving)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span>Saving...</span>
+                        }
+                        else
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                            </svg>
+                            <span>Save Changes</span>
+                        }
+                    </button>
+                }
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+                @_errorMessage
+                <button type="button" class="btn-close" @onclick="() => _errorMessage = null"></button>
+            </div>
+        }
+
+        @* Vehicle Hero Section *@
+        <div class="vehicle-hero @(_userVehicle?.IsPrimary == true ? "primary" : "")">
+            <div class="vehicle-hero-content">
+                <div class="vehicle-hero-badges">
+                    <span class="year-badge">@_vehicle.Year</span>
+                    @if (!string.IsNullOrEmpty(_vehicle.BodyClass))
+                    {
+                        <span class="body-badge">@_vehicle.BodyClass</span>
+                    }
+                    @if (_userVehicle?.IsPrimary == true)
+                    {
+                        <span class="primary-badge">Primary Vehicle</span>
+                    }
+                </div>
+                <h1 class="vehicle-hero-title">@_vehicle.Make?.Name @_vehicle.Model</h1>
+                @if (!string.IsNullOrEmpty(_vehicle.Series) || !string.IsNullOrEmpty(_vehicle.Trim))
+                {
+                    <p class="vehicle-hero-subtitle">
+                        @if (!string.IsNullOrEmpty(_vehicle.Series))
+                        {
+                            <span>@_vehicle.Series</span>
+                        }
+                        @if (!string.IsNullOrEmpty(_vehicle.Series) && !string.IsNullOrEmpty(_vehicle.Trim))
+                        {
+                            <span> · </span>
+                        }
+                        @if (!string.IsNullOrEmpty(_vehicle.Trim))
+                        {
+                            <span>@_vehicle.Trim</span>
+                        }
+                    </p>
+                }
+                @if (!string.IsNullOrEmpty(_vehicle.Engine) || !string.IsNullOrEmpty(_vehicle.Drivetrain))
+                {
+                    <div class="vehicle-hero-specs">
+                        @if (!string.IsNullOrEmpty(_vehicle.Engine))
+                        {
+                            <span class="spec-badge">@_vehicle.Engine</span>
+                        }
+                        @if (!string.IsNullOrEmpty(_vehicle.Drivetrain))
+                        {
+                            <span class="spec-badge">@_vehicle.Drivetrain</span>
+                        }
+                    </div>
+                }
+                <div class="vehicle-hero-meta">
+                    <span class="meta-item">Added @_vehicle.CreatedAt.ToString("MMM d, yyyy")</span>
+                    @if (_vehicle.UpdatedAt.HasValue)
+                    {
+                        <span class="meta-item">Updated @_vehicle.UpdatedAt.Value.ToString("MMM d, yyyy")</span>
+                    }
+                </div>
+            </div>
+            <div class="vehicle-hero-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679c.033.161.049.325.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.807.807 0 0 0 .381-.404l.792-1.848ZM3 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2H6ZM2.906 5.189a.51.51 0 0 0 .497.731c.91-.073 3.35-.17 4.597-.17 1.247 0 3.688.097 4.597.17a.51.51 0 0 0 .497-.731l-.956-1.913A.5.5 0 0 0 11.691 3H4.309a.5.5 0 0 0-.447.276L2.906 5.19Z"/>
+                </svg>
+            </div>
+        </div>
+
+        @* Main Content Grid *@
+        <div class="vehicle-content-grid @(_isEditing ? "editing-mode" : "")">
+            
+            @* Vehicle Information Card - Full Width Top Row *@
+            <div class="detail-card info-card full-width-card">
+                <div class="detail-card-header">
+                    <h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                        </svg>
+                        Vehicle Information
+                    </h3>
+                </div>
+                <div class="detail-card-body">
+                    @if (_isEditing)
+                    {
+                        <div class="edit-form">
+                            <div class="form-row three-col">
+                                <div class="form-group">
+                                    <label>VIN</label>
+                                    <input type="text" class="form-control vin-input" @bind="_editVehicle!.Vin" placeholder="17-character VIN" maxlength="17" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Color</label>
+                                    <input type="text" class="form-control" @bind="_editVehicle!.Color" placeholder="e.g. Midnight Black" />
+                                </div>
+                                <div class="form-group">
+                                    <label>License Plate</label>
+                                    <input type="text" class="form-control" @bind="_editVehicle!.LicensePlate" placeholder="ABC-1234" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Notes</label>
+                                <textarea class="form-control" @bind="_editVehicle!.Notes" rows="3" placeholder="Any notes about this vehicle..."></textarea>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="detail-grid wide">
+                            @if (!string.IsNullOrEmpty(_vehicle.Vin))
+                            {
+                                <div class="detail-item">
+                                    <span class="detail-label">VIN</span>
+                                    <span class="detail-value vin">@_vehicle.Vin</span>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(_vehicle.VehicleType))
+                            {
+                                <div class="detail-item">
+                                    <span class="detail-label">Vehicle Type</span>
+                                    <span class="detail-value">@_vehicle.VehicleType</span>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(_vehicle.BodyClass))
+                            {
+                                <div class="detail-item">
+                                    <span class="detail-label">Body Style</span>
+                                    <span class="detail-value">@_vehicle.BodyClass</span>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(_vehicle.Color))
+                            {
+                                <div class="detail-item">
+                                    <span class="detail-label">Color</span>
+                                    <span class="detail-value">@_vehicle.Color</span>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(_vehicle.LicensePlate))
+                            {
+                                <div class="detail-item">
+                                    <span class="detail-label">License Plate</span>
+                                    <span class="detail-value">@_vehicle.LicensePlate</span>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(_vehicle.Engine))
+                            {
+                                <div class="detail-item">
+                                    <span class="detail-label">Engine</span>
+                                    <span class="detail-value">@_vehicle.Engine</span>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(_vehicle.Drivetrain))
+                            {
+                                <div class="detail-item">
+                                    <span class="detail-label">Drivetrain</span>
+                                    <span class="detail-value">@_vehicle.Drivetrain</span>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(_vehicle.Notes))
+                            {
+                                <div class="detail-item full-width">
+                                    <span class="detail-label">Notes</span>
+                                    <span class="detail-value notes">@_vehicle.Notes</span>
+                                </div>
+                            }
+                            @if (!HasAnyDetails())
+                            {
+                                <div class="empty-details">
+                                    <p>No additional details</p>
+                                    <span>Click Edit to add more information</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @* Odometer / Hours Tracking Card *@
+            <div class="detail-card tracking-card">
+                <div class="detail-card-header">
+                    <h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z"/>
+                            <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z"/>
+                        </svg>
+                        Odometer & Hours
+                    </h3>
+                </div>
+                <div class="detail-card-body">
+                    @if (_isEditing)
+                    {
+                        <div class="tracking-edit-form">
+                            <div class="tracking-input-group">
+                                <label>Current Mileage</label>
+                                <div class="input-with-unit">
+                                    <input type="number" class="form-control" @bind="_editVehicle!.CurrentMiles" placeholder="0" />
+                                    <span class="unit">miles</span>
+                                </div>
+                            </div>
+                            <div class="tracking-divider"></div>
+                            <div class="tracking-toggle">
+                                <label class="toggle-label">
+                                    <input type="checkbox" @bind="_editVehicle!.TrackHours" />
+                                    <span class="toggle-text">Track Engine Hours</span>
+                                    <span class="toggle-hint">For equipment, boats, or vehicles with hour meters</span>
+                                </label>
+                            </div>
+                            @if (_editVehicle!.TrackHours)
+                            {
+                                <div class="tracking-input-group">
+                                    <label>Current Hours</label>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.1" class="form-control" @bind="_editVehicle!.CurrentHours" placeholder="0" />
+                                        <span class="unit">hours</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="tracking-display">
+                            <div class="tracking-stat main">
+                                <div class="tracking-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z"/>
+                                        <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z"/>
+                                    </svg>
+                                </div>
+                                <div class="tracking-value">
+                                    <span class="value">@(_vehicle.CurrentMiles?.ToString("N0") ?? "—")</span>
+                                    <span class="label">miles</span>
+                                </div>
+                            </div>
+                            @if (_vehicle.TrackHours)
+                            {
+                                <div class="tracking-stat">
+                                    <div class="tracking-icon secondary">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="tracking-value">
+                                        <span class="value">@(_vehicle.CurrentHours?.ToString("N1") ?? "—")</span>
+                                        <span class="label">hours</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        @if (!_vehicle.CurrentMiles.HasValue && !_vehicle.TrackHours)
+                        {
+                            <p class="tracking-hint">Click Edit to add mileage or enable hour tracking</p>
+                        }
+                    }
+                </div>
+            </div>
+
+            @* Maintenance Summary Card - Hidden when editing *@
+            @if (!_isEditing)
+            {
+                <div class="detail-card summary-card">
+                    <div class="detail-card-header">
+                        <h3>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
+                                <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
+                            </svg>
+                            Maintenance Summary
+                        </h3>
+                    </div>
+                    <div class="detail-card-body">
+                        <div class="summary-stats">
+                            <div class="summary-stat">
+                                <span class="summary-value">@_serviceRecords.Count</span>
+                                <span class="summary-label">Service Records</span>
+                            </div>
+                            <div class="summary-stat">
+                                <span class="summary-value">@_serviceRecords.Sum(s => s.TotalCost).ToString("C0")</span>
+                                <span class="summary-label">Total Spent</span>
+                            </div>
+                            @if (_serviceRecords.Any())
+                            {
+                                <div class="summary-stat">
+                                    <span class="summary-value">@_serviceRecords.Max(s => s.ServiceDate).ToString("MMM yyyy")</span>
+                                    <span class="summary-label">Last Service</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                @* Service History Card *@
+                <div class="detail-card service-card">
+                    <div class="detail-card-header">
+                        <h3>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
+                            </svg>
+                            Service History
+                        </h3>
+                        <button class="btn-add-service" @onclick="AddServiceRecord">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                            </svg>
+                            Add Service
+                        </button>
+                    </div>
+                    <div class="detail-card-body">
+                        @if (!_serviceRecords.Any())
+                        {
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
+                                    </svg>
+                                </div>
+                                <p>No service records yet</p>
+                                <span class="empty-hint">Keep track of oil changes, repairs, and more</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="service-list">
+                                @foreach (var record in _serviceRecords)
+                                {
+                                    <div class="service-item">
+                                        <div class="service-date">
+                                            <span class="service-month">@record.ServiceDate.ToString("MMM")</span>
+                                            <span class="service-day">@record.ServiceDate.Day</span>
+                                            <span class="service-year">@record.ServiceDate.Year</span>
+                                        </div>
+                                        <div class="service-info">
+                                            <h4>@record.Title</h4>
+                                            @if (!string.IsNullOrEmpty(record.Description))
+                                            {
+                                                <p class="service-description">@record.Description</p>
+                                            }
+                                            <div class="service-meta">
+                                                @if (record.MilesAtService.HasValue)
+                                                {
+                                                    <span class="service-miles">@record.MilesAtService.Value.ToString("N0") mi</span>
+                                                }
+                                                @if (!string.IsNullOrEmpty(record.ShopName))
+                                                {
+                                                    <span class="service-shop">@record.ShopName</span>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="service-cost">
+                                            @if (record.TotalCost > 0)
+                                            {
+                                                <span class="cost-amount">@record.TotalCost.ToString("C")</span>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        @* Delete Confirmation Modal *@
+        @if (_showDeleteConfirm)
+        {
+            <div class="modal-backdrop" @onclick="HideDeleteConfirmation"></div>
+            <div class="modal-container">
+                <div class="modal-dialog" @onclick:stopPropagation="true">
+                    <div class="modal-header">
+                        <div class="modal-icon delete">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        </div>
+                        <h3>Delete Vehicle</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this vehicle?</p>
+                        <div class="delete-vehicle-preview">
+                            <strong>@_vehicle.Year @_vehicle.Make?.Name @_vehicle.Model</strong>
+                            @if (!string.IsNullOrEmpty(_vehicle.Vin))
+                            {
+                                <span class="delete-vin">VIN: @_vehicle.Vin</span>
+                            }
+                        </div>
+                        <p class="delete-warning">This action cannot be undone. All service records for this vehicle will also be deleted.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="HideDeleteConfirmation" disabled="@_isDeleting">Cancel</button>
+                        <button type="button" class="btn btn-danger" @onclick="DeleteVehicle" disabled="@_isDeleting">
+                            @if (_isDeleting)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <span>Deleting...</span>
+                            }
+                            else
+                            {
+                                <span>Delete Vehicle</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public long VehicleId { get; set; }
+
+    private Vehicle? _vehicle;
+    private Vehicle? _editVehicle;
+    private UserVehicle? _userVehicle;
+    private List<ServiceRecord> _serviceRecords = new();
+    private string? _userId;
+    private bool _isLoading = true;
+    private bool _isEditing;
+    private bool _isSaving;
+    private bool _showDeleteConfirm;
+    private bool _isDeleting;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadVehicleDetails();
+    }
+
+    private async Task LoadVehicleDetails()
+    {
+        _isLoading = true;
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            _userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(_userId))
+            {
+                _vehicle = await VehicleService.GetVehicleByIdAsync(VehicleId);
+                if (_vehicle != null)
+                {
+                    _userVehicle = _vehicle.UserVehicles.FirstOrDefault(uv => uv.UserId == _userId);
+                    _serviceRecords = await ServiceRecordService.GetServiceRecordsForVehicleAsync(VehicleId);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading vehicle details: {ex.Message}");
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private bool HasAnyDetails()
+    {
+        return !string.IsNullOrEmpty(_vehicle?.Vin) ||
+               !string.IsNullOrEmpty(_vehicle?.VehicleType) ||
+               !string.IsNullOrEmpty(_vehicle?.BodyClass) ||
+               !string.IsNullOrEmpty(_vehicle?.Color) ||
+               !string.IsNullOrEmpty(_vehicle?.LicensePlate) ||
+               !string.IsNullOrEmpty(_vehicle?.Engine) ||
+               !string.IsNullOrEmpty(_vehicle?.Drivetrain) ||
+               !string.IsNullOrEmpty(_vehicle?.Notes);
+    }
+
+    private void GoBack() => NavigationManager.NavigateTo("/garage");
+
+    private void StartEditing()
+    {
+        _editVehicle = new Vehicle
+        {
+            Id = _vehicle!.Id,
+            Color = _vehicle.Color,
+            LicensePlate = _vehicle.LicensePlate,
+            CurrentMiles = _vehicle.CurrentMiles,
+            CurrentHours = _vehicle.CurrentHours,
+            TrackHours = _vehicle.TrackHours,
+            Vin = _vehicle.Vin,
+            Notes = _vehicle.Notes
+        };
+        _isEditing = true;
+    }
+
+    private void CancelEditing()
+    {
+        _isEditing = false;
+        _editVehicle = null;
+    }
+
+    private async Task SaveChanges()
+    {
+        if (_editVehicle is null || _vehicle is null) return;
+        _isSaving = true;
+        StateHasChanged();
+        try
+        {
+            _vehicle.Color = _editVehicle.Color;
+            _vehicle.LicensePlate = _editVehicle.LicensePlate;
+            _vehicle.CurrentMiles = _editVehicle.CurrentMiles;
+            _vehicle.CurrentHours = _editVehicle.CurrentHours;
+            _vehicle.TrackHours = _editVehicle.TrackHours;
+            _vehicle.Vin = _editVehicle.Vin;
+            _vehicle.Notes = _editVehicle.Notes;
+            await VehicleService.UpdateVehicleAsync(_vehicle);
+            _isEditing = false;
+            _editVehicle = null;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving vehicle: {ex.Message}");
+        }
+        finally
+        {
+            _isSaving = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ShowDeleteConfirmation()
+    {
+        Console.WriteLine("ShowDeleteConfirmation called");
+        _showDeleteConfirm = true;
+    }
+    
+    private void HideDeleteConfirmation()
+    {
+        Console.WriteLine("HideDeleteConfirmation called");
+        _showDeleteConfirm = false;
+    }
+
+    private async Task DeleteVehicle()
+    {
+        Console.WriteLine("DeleteVehicle called - START");
+        if (_userId is null)
+        {
+            Console.WriteLine("DeleteVehicle - userId is null, returning");
+            return;
+        }
+        _isDeleting = true;
+        _errorMessage = null;
+        StateHasChanged();
+        try
+        {
+            Console.WriteLine($"DeleteVehicle - Calling VehicleService.DeleteVehicleAsync({VehicleId}, {_userId})");
+            var success = await VehicleService.DeleteVehicleAsync(VehicleId, _userId);
+            Console.WriteLine($"DeleteVehicle - Result: {success}");
+            if (success)
+            {
+                NavigationManager.NavigateTo("/garage");
+            }
+            else
+            {
+                _errorMessage = "Unable to delete vehicle. You may not have permission.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting vehicle: {ex.Message}");
+            _errorMessage = "An error occurred while deleting the vehicle.";
+        }
+        finally
+        {
+            _isDeleting = false;
+            _showDeleteConfirm = false;
+            StateHasChanged();
+        }
+    }
+
+    private void AddServiceRecord() => NavigationManager.NavigateTo($"/garage/vehicle/{VehicleId}/service/add");
+}
+
