@@ -1,0 +1,45 @@
+@*
+    Badge Component
+    Reusable badge with multiple variants and sizes
+    
+    Usage:
+    <Badge Variant="BadgeVariant.Primary">Text</Badge>
+    <Badge Variant="BadgeVariant.Success" Size="BadgeSize.Small">Active</Badge>
+*@
+
+<span class="badge badge-@Variant.ToString().ToLower() @(Size == BadgeSize.Small ? "badge-sm" : Size == BadgeSize.Large ? "badge-lg" : "") @CssClass">
+    @if (Icon is not null)
+    {
+        @Icon
+    }
+    @ChildContent
+</span>
+
+@code {
+    [Parameter] public BadgeVariant Variant { get; set; } = BadgeVariant.Secondary;
+    [Parameter] public BadgeSize Size { get; set; } = BadgeSize.Default;
+    [Parameter] public RenderFragment? Icon { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? CssClass { get; set; }
+
+    public enum BadgeVariant
+    {
+        Primary,
+        Secondary,
+        Success,
+        Warning,
+        Danger,
+        Info,
+        Dark,
+        Light,
+        Outline
+    }
+
+    public enum BadgeSize
+    {
+        Small,
+        Default,
+        Large
+    }
+}
+

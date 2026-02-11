@@ -3,6 +3,9 @@
    Organized for future light/dark mode support
    ============================================================ */
 
+@import url('css/base/_variables.css');
+@import url('css/components/_components.css');
+
 /* ===== CSS CUSTOM PROPERTIES (VARIABLES) ===== */
 :root {
     /* Brand Colors */

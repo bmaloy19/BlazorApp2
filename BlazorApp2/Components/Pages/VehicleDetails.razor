@@ -14,31 +14,26 @@
 <div class="vehicle-details-container">
     @if (_isLoading)
     {
-        <div class="loading-container">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p>Loading vehicle details...</p>
-        </div>
+        <LoadingState Message="Loading vehicle details..." />
     }
     else if (_vehicle is null)
     {
-        <div class="not-found-container">
-            <div class="not-found-icon">
+        <EmptyState Title="Vehicle Not Found" Description="The vehicle you're looking for doesn't exist or you don't have access to it.">
+            <Icon>
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                     <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
                 </svg>
-            </div>
-            <h2>Vehicle Not Found</h2>
-            <p>The vehicle you're looking for doesn't exist or you don't have access to it.</p>
-            <button class="btn btn-primary" @onclick="GoBack">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-                </svg>
-                Back to Garage
-            </button>
-        </div>
+            </Icon>
+            <Action>
+                <button class="btn btn-primary" @onclick="GoBack">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                    </svg>
+                    Back to Garage
+                </button>
+            </Action>
+        </EmptyState>
     }
     else
     {
@@ -459,48 +454,25 @@
         </div>
 
         @* Delete Confirmation Modal *@
-        @if (_showDeleteConfirm)
-        {
-            <div class="modal-backdrop" @onclick="HideDeleteConfirmation"></div>
-            <div class="modal-container">
-                <div class="modal-dialog" @onclick:stopPropagation="true">
-                    <div class="modal-header">
-                        <div class="modal-icon delete">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                            </svg>
-                        </div>
-                        <h3>Delete Vehicle</h3>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete this vehicle?</p>
-                        <div class="delete-vehicle-preview">
-                            <strong>@_vehicle.Year @_vehicle.Make?.Name @_vehicle.Model</strong>
-                            @if (!string.IsNullOrEmpty(_vehicle.Vin))
-                            {
-                                <span class="delete-vin">VIN: @_vehicle.Vin</span>
-                            }
-                        </div>
-                        <p class="delete-warning">This action cannot be undone. All service records for this vehicle will also be deleted.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @onclick="HideDeleteConfirmation" disabled="@_isDeleting">Cancel</button>
-                        <button type="button" class="btn btn-danger" @onclick="DeleteVehicle" disabled="@_isDeleting">
-                            @if (_isDeleting)
-                            {
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span>Deleting...</span>
-                            }
-                            else
-                            {
-                                <span>Delete Vehicle</span>
-                            }
-                        </button>
-                    </div>
+        <ConfirmDialog @ref="_deleteConfirmDialog"
+            Title="Delete Vehicle"
+            Message="Are you sure you want to delete this vehicle?"
+            ConfirmText="Delete Vehicle"
+            ConfirmVariant="ConfirmDialog.ButtonVariant.Danger"
+            IconVariant="ConfirmDialog.IconType.Danger"
+            OnConfirm="DeleteVehicle"
+            OnCancel="HideDeleteConfirmation">
+            <Content>
+                <div class="delete-vehicle-preview">
+                    <strong>@_vehicle.Year @_vehicle.Make?.Name @_vehicle.Model</strong>
+                    @if (!string.IsNullOrEmpty(_vehicle.Vin))
+                    {
+                        <span class="delete-vin">VIN: @_vehicle.Vin</span>
+                    }
                 </div>
-            </div>
-        }
+                <p class="delete-warning">This action cannot be undone. All service records for this vehicle will also be deleted.</p>
+            </Content>
+        </ConfirmDialog>
     }
 </div>
 
@@ -515,9 +487,8 @@
     private bool _isLoading = true;
     private bool _isEditing;
     private bool _isSaving;
-    private bool _showDeleteConfirm;
-    private bool _isDeleting;
     private string? _errorMessage;
+    private ConfirmDialog? _deleteConfirmDialog;
 
     protected override async Task OnInitializedAsync()
     {
@@ -619,13 +590,13 @@
     private void ShowDeleteConfirmation()
     {
         Console.WriteLine("ShowDeleteConfirmation called");
-        _showDeleteConfirm = true;
+        _deleteConfirmDialog?.Show();
     }
     
     private void HideDeleteConfirmation()
     {
         Console.WriteLine("HideDeleteConfirmation called");
-        _showDeleteConfirm = false;
+        // ConfirmDialog handles its own visibility
     }
 
     private async Task DeleteVehicle()
@@ -636,9 +607,7 @@
             Console.WriteLine("DeleteVehicle - userId is null, returning");
             return;
         }
-        _isDeleting = true;
         _errorMessage = null;
-        StateHasChanged();
         try
         {
             Console.WriteLine($"DeleteVehicle - Calling VehicleService.DeleteVehicleAsync({VehicleId}, {_userId})");
@@ -657,12 +626,6 @@
         {
             Console.WriteLine($"Error deleting vehicle: {ex.Message}");
             _errorMessage = "An error occurred while deleting the vehicle.";
-        }
-        finally
-        {
-            _isDeleting = false;
-            _showDeleteConfirm = false;
-            StateHasChanged();
         }
     }
 

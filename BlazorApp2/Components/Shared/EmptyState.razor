@@ -1,0 +1,45 @@
+@*
+    EmptyState Component
+    Display when no content/data is available
+    
+    Usage:
+    <EmptyState 
+        Title="No vehicles found" 
+        Description="Add your first vehicle to get started">
+        <Icon>
+            <svg>...</svg>
+        </Icon>
+        <Action>
+            <button class="btn btn-primary">Add Vehicle</button>
+        </Action>
+    </EmptyState>
+*@
+
+<div class="empty-state @CssClass">
+    @if (Icon is not null)
+    {
+        <div class="empty-state-icon">
+            @Icon
+        </div>
+    }
+    <p class="empty-state-title">@Title</p>
+    @if (!string.IsNullOrEmpty(Description))
+    {
+        <span class="empty-state-description">@Description</span>
+    }
+    @if (Action is not null)
+    {
+        <div class="empty-state-action">
+            @Action
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "No data available";
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public RenderFragment? Icon { get; set; }
+    [Parameter] public RenderFragment? Action { get; set; }
+    [Parameter] public string? CssClass { get; set; }
+}
+

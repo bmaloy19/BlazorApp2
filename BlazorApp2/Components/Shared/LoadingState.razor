@@ -1,0 +1,32 @@
+@*
+    LoadingState Component
+    Display during async loading operations
+    
+    Usage:
+    <LoadingState Message="Loading your vehicles..." />
+    <LoadingState Size="SpinnerSize.Large" />
+*@
+
+<div class="loading-container @CssClass">
+    <div class="spinner @(Size == SpinnerSize.Small ? "spinner-sm" : Size == SpinnerSize.Large ? "spinner-lg" : "")" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    @if (!string.IsNullOrEmpty(Message))
+    {
+        <p>@Message</p>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Message { get; set; }
+    [Parameter] public SpinnerSize Size { get; set; } = SpinnerSize.Default;
+    [Parameter] public string? CssClass { get; set; }
+
+    public enum SpinnerSize
+    {
+        Small,
+        Default,
+        Large
+    }
+}
+

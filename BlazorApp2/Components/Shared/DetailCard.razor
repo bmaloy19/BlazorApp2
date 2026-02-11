@@ -1,0 +1,56 @@
+@*
+    DetailCard Component
+    A card with optional header for displaying detail sections
+    
+    Usage:
+    <DetailCard Title="Vehicle Information" Icon="Icons.Info">
+        <Content>
+            ...your content...
+        </Content>
+        <HeaderActions>
+            <button>Edit</button>
+        </HeaderActions>
+    </DetailCard>
+*@
+
+<div class="card detail-card @CssClass">
+    @if (!string.IsNullOrEmpty(Title))
+    {
+        <div class="card-header @(DarkHeader ? "card-header-dark" : "")">
+            <h3 class="card-header-title">
+                @if (Icon is not null)
+                {
+                    @Icon
+                }
+                @Title
+            </h3>
+            @if (HeaderActions is not null)
+            {
+                <div class="card-header-actions">
+                    @HeaderActions
+                </div>
+            }
+        </div>
+    }
+    <div class="card-body @(Compact ? "card-body-compact" : "")">
+        @Content
+    </div>
+    @if (Footer is not null)
+    {
+        <div class="card-footer">
+            @Footer
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public RenderFragment? Icon { get; set; }
+    [Parameter] public RenderFragment? Content { get; set; }
+    [Parameter] public RenderFragment? HeaderActions { get; set; }
+    [Parameter] public RenderFragment? Footer { get; set; }
+    [Parameter] public bool DarkHeader { get; set; }
+    [Parameter] public bool Compact { get; set; }
+    [Parameter] public string? CssClass { get; set; }
+}
+

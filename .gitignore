@@ -5,10 +5,6 @@ obj/
 *.userosscache
 *.sln.iml
 *.csproj.user
-*.db
-*.db-shm
-*.db-wal
-app.db
 TestResults/
 
 # ===== .NET Core =====
@@ -85,9 +81,6 @@ appsettings.Local.json
 *.local.json
 
 # ===== Database files =====
-*.db
+# SQLite journal/lock files (not the main .db file)
 *.db-shm
 *.db-wal
-app.db
-/Migrations/*.Designer.cs
-/Migrations/*.sqlite
