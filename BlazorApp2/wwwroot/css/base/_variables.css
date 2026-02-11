@@ -5,6 +5,15 @@
 
 :root {
     /* ===========================================
+       BRAND IDENTITY
+       Change these to whitelabel for different clients
+       =========================================== */
+    --app-name: "Maloy Maintenance";
+    --logo-url: url('/logo-red.svg');
+    --logo-width: 60px;
+    --logo-height: 42px;
+    
+    /* ===========================================
        BRAND COLORS
        Change these to whitelabel for different clients
        =========================================== */

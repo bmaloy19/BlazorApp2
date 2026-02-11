@@ -9,7 +9,7 @@
 @inject VehicleService VehicleService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<PageTitle>Add New Vehicle</PageTitle>
+<PageTitle>Add New Vehicle - Maloy Maintenance</PageTitle>
 
 <div class="add-vehicle-container">
     <div class="add-vehicle-header">
@@ -122,6 +122,14 @@
                     <h4>Additional Information (Optional)</h4>
                     
                     <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="nickname">Nickname</label>
+                            <input type="text" id="nickname" class="form-control" @bind="_nickname" placeholder="e.g. 'Daily Driver', 'The Beast', 'Ruby'" maxlength="120" />
+                            <span class="form-hint">Give your vehicle a friendly name for easy identification</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
                         <div class="form-group">
                             <label for="color">Color</label>
                             <input type="text" id="color" class="form-control" @bind="_vehicle.Color" placeholder="e.g. Midnight Black" />
@@ -174,6 +182,7 @@
     private InputMethod _inputMethod = InputMethod.Vin;
     private Vehicle? _vehicle;
     private string _makeName = string.Empty; // For display purposes before save
+    private string? _nickname;
     private bool _isSaving = false;
     private string? _errorMessage;
 
@@ -213,6 +222,7 @@
     {
         _vehicle = null;
         _makeName = string.Empty;
+        _nickname = null;
         _errorMessage = null;
     }
 
@@ -235,7 +245,7 @@
                 return;
             }
 
-            await VehicleService.AddVehicleAsync(_vehicle, userId, makeName: _makeName);
+            await VehicleService.AddVehicleAsync(_vehicle, userId, nickname: _nickname, makeName: _makeName);
             NavigationManager.NavigateTo("/garage");
         }
         catch (Exception ex)

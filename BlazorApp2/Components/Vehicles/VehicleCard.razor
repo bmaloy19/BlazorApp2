@@ -37,7 +37,15 @@
         
         <div class="vehicle-card-body">
             <div class="vehicle-info">
-                <h3 class="vehicle-name">@Vehicle.Make?.Name @Vehicle.Model</h3>
+                @if (!string.IsNullOrEmpty(UserVehicle?.Nickname))
+                {
+                    <h3 class="vehicle-name vehicle-nickname">@UserVehicle.Nickname</h3>
+                    <p class="vehicle-actual-name">@Vehicle.Make?.Name @Vehicle.Model</p>
+                }
+                else
+                {
+                    <h3 class="vehicle-name">@Vehicle.Make?.Name @Vehicle.Model</h3>
+                }
                 @if (!string.IsNullOrEmpty(Vehicle.Series) || !string.IsNullOrEmpty(Vehicle.Trim))
                 {
                     <p class="vehicle-trim">
@@ -115,7 +123,15 @@ else
         <div class="vehicle-row-main-section">
             <div class="vehicle-row-header">
                 <span class="vehicle-row-year">@Vehicle.Year</span>
-                <span class="vehicle-row-name">@Vehicle.Make?.Name @Vehicle.Model</span>
+                @if (!string.IsNullOrEmpty(UserVehicle?.Nickname))
+                {
+                    <span class="vehicle-row-name vehicle-row-nickname">@UserVehicle.Nickname</span>
+                    <span class="vehicle-row-actual-name">@Vehicle.Make?.Name @Vehicle.Model</span>
+                }
+                else
+                {
+                    <span class="vehicle-row-name">@Vehicle.Make?.Name @Vehicle.Model</span>
+                }
                 @if (!string.IsNullOrEmpty(Vehicle.Series))
                 {
                     <span class="vehicle-row-series">@Vehicle.Series</span>

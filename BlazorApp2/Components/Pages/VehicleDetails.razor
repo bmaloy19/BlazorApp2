@@ -9,7 +9,7 @@
 @inject ServiceRecordService ServiceRecordService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<PageTitle>@(_vehicle != null ? $"{_vehicle.Year} {_vehicle.Make?.Name} {_vehicle.Model}" : "Vehicle Details")</PageTitle>
+<PageTitle>@(_vehicle != null ? $"{_vehicle.Year} {_vehicle.Make?.Name} {_vehicle.Model} - Maloy Maintenance" : "Vehicle Details - Maloy Maintenance")</PageTitle>
 
 <div class="vehicle-details-container">
     @if (_isLoading)
@@ -112,6 +112,10 @@
                         <span class="primary-badge">Primary Vehicle</span>
                     }
                 </div>
+                @if (!string.IsNullOrEmpty(_userVehicle?.Nickname))
+                {
+                    <p class="vehicle-hero-nickname">@_userVehicle.Nickname</p>
+                }
                 <h1 class="vehicle-hero-title">@_vehicle.Make?.Name @_vehicle.Model</h1>
                 @if (!string.IsNullOrEmpty(_vehicle.Series) || !string.IsNullOrEmpty(_vehicle.Trim))
                 {
@@ -175,6 +179,13 @@
                     @if (_isEditing)
                     {
                         <div class="edit-form">
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label>Nickname</label>
+                                    <input type="text" class="form-control" @bind="_editNickname" placeholder="e.g. 'Daily Driver', 'The Beast'" maxlength="120" />
+                                    <span class="form-hint">A friendly name for easy identification</span>
+                                </div>
+                            </div>
                             <div class="form-row three-col">
                                 <div class="form-group">
                                     <label>VIN</label>
@@ -482,6 +493,7 @@
     private Vehicle? _vehicle;
     private Vehicle? _editVehicle;
     private UserVehicle? _userVehicle;
+    private string? _editNickname;
     private List<ServiceRecord> _serviceRecords = new();
     private string? _userId;
     private bool _isLoading = true;
@@ -549,6 +561,7 @@
             Vin = _vehicle.Vin,
             Notes = _vehicle.Notes
         };
+        _editNickname = _userVehicle?.Nickname;
         _isEditing = true;
     }
 
@@ -556,11 +569,12 @@
     {
         _isEditing = false;
         _editVehicle = null;
+        _editNickname = null;
     }
 
     private async Task SaveChanges()
     {
-        if (_editVehicle is null || _vehicle is null) return;
+        if (_editVehicle is null || _vehicle is null || _userId is null) return;
         _isSaving = true;
         StateHasChanged();
         try
@@ -573,12 +587,22 @@
             _vehicle.Vin = _editVehicle.Vin;
             _vehicle.Notes = _editVehicle.Notes;
             await VehicleService.UpdateVehicleAsync(_vehicle);
+            
+            // Update nickname in UserVehicle
+            if (_userVehicle != null && _editNickname != _userVehicle.Nickname)
+            {
+                await VehicleService.UpdateUserVehicleAsync(_userId, VehicleId, nickname: _editNickname);
+                _userVehicle.Nickname = _editNickname;
+            }
+            
             _isEditing = false;
             _editVehicle = null;
+            _editNickname = null;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error saving vehicle: {ex.Message}");
+            _errorMessage = "Failed to save changes. Please try again.";
         }
         finally
         {
