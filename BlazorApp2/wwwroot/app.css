@@ -318,7 +318,6 @@ article {
 .nav-item a.nav-link.active svg {
     opacity: 1;
 }
-}
 
 .nav-item a.nav-link:hover {
     background-color: var(--sidebar-hover);
@@ -1559,6 +1558,40 @@ textarea.form-control {
     display: flex;
     border-bottom: 2px solid var(--card-border);
     margin-bottom: var(--space-lg);
+}
+
+/* ===== NAV PILLS (Account Management) ===== */
+.nav-pills {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.nav-pills .nav-item {
+    list-style: none;
+}
+
+.nav-pills .nav-link {
+    display: block;
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--body-text);
+    background: var(--lightest-gray);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.nav-pills .nav-link:hover {
+    background: var(--lighter-gray);
+    color: var(--heading-text);
+}
+
+.nav-pills .nav-link.active {
+    background: linear-gradient(135deg, var(--primary-red) 0%, #b30000 100%);
+    color: var(--white);
+    box-shadow: 0 2px 8px rgba(209, 0, 0, 0.25);
 }
 
 .tab {
