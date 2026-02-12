@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added - February 9, 2026
+- overhauled folder structure	
+- componitized pages
+- kept css architecture in mind and updated
+- started email service for auth in progress.
+- prettied landing page/ nav bar/ and error page.
+- same todos just did behind the scenes updates today.
+
 ### Added - February 8, 2026
 - **Vehicle Details Page** (`/garage/vehicle/{id}`) - View and manage individual vehicles
   - Hero section with vehicle info, edit/delete buttons
