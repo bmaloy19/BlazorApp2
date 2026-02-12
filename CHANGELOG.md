@@ -6,7 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Added - February 9, 2026
+### Added - February 11, 2026
+- completed email service
+- overhauled auth pages flow and css architecture
+- same todo
+
+### Added - February 10, 2026
 - overhauled folder structure	
 - componitized pages
 - kept css architecture in mind and updated
