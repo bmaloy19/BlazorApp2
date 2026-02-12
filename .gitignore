@@ -79,6 +79,10 @@ Ankh.NoLoad
 appsettings.Development.json
 appsettings.Local.json
 *.local.json
+secrets.json
+
+# User Secrets (stored in ~/.microsoft/usersecrets/ - not in repo, but just in case)
+**/usersecrets/
 
 # ===== Database files =====
 # SQLite journal/lock files (not the main .db file)
