@@ -8,13 +8,65 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject IdentityRedirectManager RedirectManager
 
-<PageTitle>Confirm email</PageTitle>
+<PageTitle>Email Confirmed</PageTitle>
 
-<h1>Confirm email</h1>
-<StatusMessage Message="@statusMessage"/>
+<div class="auth-status">
+    @if (isSuccess)
+    {
+        <div class="auth-status-icon success">
+            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+            </svg>
+        </div>
+        
+        <h1>Email Confirmed!</h1>
+        
+        <p class="auth-status-message">
+            Your email has been successfully verified. Your account is now active and ready to use.
+        </p>
+        
+        <div class="auth-actions">
+            <a href="Account/Login" class="btn btn-primary btn-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                    <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"/>
+                    <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+                </svg>
+                Sign In to Your Account
+            </a>
+        </div>
+        
+        <p class="auth-status-hint">
+            You can now sign in with your email and password.
+        </p>
+    }
+    else
+    {
+        <div class="auth-status-icon error">
+            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+            </svg>
+        </div>
+        
+        <h1>Confirmation Failed</h1>
+        
+        <p class="auth-status-message">
+            @statusMessage
+        </p>
+        
+        <div class="auth-actions">
+            <a href="Account/ResendEmailConfirmation" class="btn btn-primary">
+                Request New Confirmation Link
+            </a>
+            <a href="Account/Login" class="btn btn-secondary">
+                Back to Login
+            </a>
+        </div>
+    }
+</div>
 
 @code {
     private string? statusMessage;
+    private bool isSuccess;
 
     [CascadingParameter] private HttpContext HttpContext { get; set; } = default!;
 
@@ -33,13 +85,19 @@
         if (user is null)
         {
             HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-            statusMessage = $"Error loading user with ID {UserId}";
+            statusMessage = "We couldn't find your account. The confirmation link may be invalid or expired.";
+            isSuccess = false;
         }
         else
         {
             var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(Code));
             var result = await UserManager.ConfirmEmailAsync(user, code);
-            statusMessage = result.Succeeded ? "Thank you for confirming your email." : "Error confirming your email.";
+            isSuccess = result.Succeeded;
+            
+            if (!result.Succeeded)
+            {
+                statusMessage = "The confirmation link is invalid or has expired. Please request a new one.";
+            }
         }
     }
 

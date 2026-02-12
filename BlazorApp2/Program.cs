@@ -46,15 +46,17 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 // Configure Email Settings
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
-// Register email services based on environment
-if (builder.Environment.IsDevelopment())
+// Register email services based on AppEnvironment setting
+// Values: "LocalDev", "UAT", "Prod"
+var appEnvironment = builder.Configuration["AppEnvironment"] ?? "Prod";
+if (appEnvironment is "LocalDev")
 {
-    // In development, use the development email sender that saves emails to files
+    // In LocalDev, use the development email sender that saves emails to files
     builder.Services.AddSingleton<IEmailSender, DevelopmentEmailSender>();
 }
 else
 {
-    // In production, use SMTP email sender
+    // In UAT and Prod, use SMTP email sender
     builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
 }
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, EmailSenderService>();

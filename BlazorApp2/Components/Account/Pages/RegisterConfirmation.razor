@@ -1,4 +1,4 @@
-﻿﻿@page "/Account/RegisterConfirmation"
+﻿@page "/Account/RegisterConfirmation"
 
 @using System.Text
 @using Microsoft.AspNetCore.Identity
@@ -8,12 +8,12 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
-@inject IWebHostEnvironment Environment
+@inject IConfiguration Configuration
 
 <PageTitle>Register confirmation</PageTitle>
 
-<div class="registration-confirmation">
-    <div class="confirmation-icon">
+<div class="auth-status">
+    <div class="auth-status-icon info">
         <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
             <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757Zm3.436-.586L16 11.801V4.697l-5.803 3.546Z"/>
         </svg>
@@ -23,27 +23,31 @@
     
     <StatusMessage Message="@statusMessage"/>
     
-    @if (Environment.IsDevelopment() && emailConfirmationLink is not null)
+    @if (IsDevEnvironment && emailConfirmationLink is not null)
     {
-        <div class="alert alert-info">
-            <h5><strong>Development Mode</strong></h5>
-            <p>In development, emails are saved to the <code>dev-emails</code> folder in your project.</p>
-            <p>For convenience, you can confirm your account directly:</p>
+        <div class="auth-alert info">
+            <div>
+                <h5>Development Mode (@AppEnvironment)</h5>
+                <p>In development, emails are saved to the <code>dev-emails</code> folder in your project.</p>
+                <p>For convenience, you can confirm your account directly:</p>
+            </div>
+        </div>
+        <div class="auth-actions">
             <a href="@emailConfirmationLink" class="btn btn-primary">Confirm Email Now</a>
         </div>
     }
     else
     {
-        <p class="confirmation-message">
+        <p class="auth-status-message">
             We've sent a confirmation link to <strong>@Email</strong>
         </p>
-        <p class="confirmation-instructions">
+        <p class="auth-status-hint" style="margin-bottom: var(--space-xl);">
             Please check your email and click the confirmation link to activate your account.
             If you don't see the email, check your spam folder.
         </p>
         
-        <div class="confirmation-actions">
-            <a href="Account/Login" class="btn btn-outline-primary">Back to Login</a>
+        <div class="auth-actions">
+            <a href="Account/Login" class="btn btn-outline">Back to Login</a>
             <a href="Account/ResendEmailConfirmation?email=@Uri.EscapeDataString(Email ?? "")" class="btn btn-link">
                 Didn't receive the email? Resend
             </a>
@@ -51,40 +55,13 @@
     }
 </div>
 
-<style>
-    .registration-confirmation {
-        max-width: 500px;
-        margin: 2rem auto;
-        text-align: center;
-        padding: 2rem;
-    }
-    
-    .confirmation-icon {
-        color: var(--primary-red, #d10000);
-        margin-bottom: 1.5rem;
-    }
-    
-    .confirmation-message {
-        font-size: 1.1rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .confirmation-instructions {
-        color: #666;
-        margin-bottom: 2rem;
-    }
-    
-    .confirmation-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        align-items: center;
-    }
-</style>
-
 @code {
     private string? emailConfirmationLink;
     private string? statusMessage;
+    
+    // AppEnvironment values: "LocalDev", "UAT", "Prod"
+    private string AppEnvironment => Configuration["AppEnvironment"] ?? "Prod";
+    private bool IsDevEnvironment => AppEnvironment is "LocalDev" or "UAT";
 
     [CascadingParameter] private HttpContext HttpContext { get; set; } = default!;
 
@@ -105,9 +82,9 @@
             HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
             statusMessage = "Error finding user for unspecified email";
         }
-        else if (Environment.IsDevelopment())
+        else if (IsDevEnvironment)
         {
-            // In development, show direct confirmation link for convenience
+            // In LocalDev or UAT, show direct confirmation link for convenience
             var userId = await UserManager.GetUserIdAsync(user);
             var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
