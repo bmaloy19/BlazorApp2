@@ -14,21 +14,36 @@
 
 <PageTitle>Resend email confirmation</PageTitle>
 
-<h1>Resend email confirmation</h1>
-<h2>Enter your email.</h2>
-<hr/>
-<StatusMessage Message="@message"/>
-<div class="row">
-    <div class="col-md-4">
-        <EditForm Model="Input" FormName="resend-email-confirmation" OnValidSubmit="OnValidSubmitAsync" method="post">
+<div class="auth-container">
+    <div class="auth-header">
+        <div class="auth-header-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757Zm3.436-.586L16 11.801V4.697l-5.803 3.546Z"/>
+            </svg>
+        </div>
+        <h1>Resend Confirmation</h1>
+        <p>Enter your email to receive a new confirmation link</p>
+    </div>
+    
+    <div class="auth-card">
+        <StatusMessage Message="@message"/>
+        <EditForm Model="Input" FormName="resend-email-confirmation" OnValidSubmit="OnValidSubmitAsync" method="post" class="auth-form">
             <DataAnnotationsValidator/>
             <ValidationSummary class="text-danger" role="alert"/>
-            <div class="form-floating mb-3">
+            
+            <div class="form-floating">
                 <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" aria-required="true" placeholder="name@example.com"/>
-                <label for="Input.Email" class="form-label">Email</label>
+                <label for="Input.Email">Email</label>
                 <ValidationMessage For="() => Input.Email" class="text-danger"/>
             </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Resend</button>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg w-100">Resend Confirmation</button>
+            </div>
+            
+            <div class="auth-links">
+                <a href="Account/Login">Back to Login</a>
+            </div>
         </EditForm>
     </div>
 </div>

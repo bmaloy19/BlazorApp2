@@ -1,8 +1,26 @@
 ﻿@page "/Account/Lockout"
 
-<PageTitle>Locked out</PageTitle>
+<PageTitle>Account Locked</PageTitle>
 
-<header>
-    <h1 class="text-danger">Locked out</h1>
-    <p class="text-danger" role="alert">This account has been locked out, please try again later.</p>
-</header>
+<div class="auth-status">
+    <div class="auth-status-icon warning">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/>
+        </svg>
+    </div>
+    
+    <h1>Account Locked</h1>
+    
+    <p class="auth-status-message">
+        This account has been temporarily locked due to too many failed login attempts.
+    </p>
+    
+    <p class="auth-status-hint">
+        Please try again later or contact support if you need immediate assistance.
+    </p>
+    
+    <div class="auth-actions">
+        <a href="Account/ForgotPassword" class="btn btn-primary">Reset Password</a>
+        <a href="Account/Login" class="btn btn-secondary">Try Again Later</a>
+    </div>
+</div>

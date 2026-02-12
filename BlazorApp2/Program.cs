@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using BlazorApp2.Components;
 using BlazorApp2.Components.Account;
@@ -42,7 +43,23 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+// Configure Email Settings
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
+// Register email services based on AppEnvironment setting
+// Values: "LocalDev", "UAT", "Prod"
+var appEnvironment = builder.Configuration["AppEnvironment"] ?? "Prod";
+if (appEnvironment is "LocalDev")
+{
+    // In LocalDev, use the development email sender that saves emails to files
+    builder.Services.AddSingleton<IEmailSender, DevelopmentEmailSender>();
+}
+else
+{
+    // In UAT and Prod, use SMTP email sender
+    builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
+}
+builder.Services.AddSingleton<IEmailSender<ApplicationUser>, EmailSenderService>();
 
 // Register application services
 builder.Services.AddScoped<VehicleService>();
