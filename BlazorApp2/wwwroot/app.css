@@ -3590,7 +3590,7 @@ html {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-lg);
     flex-wrap: wrap;
     gap: var(--space-md);
 }
@@ -3631,6 +3631,441 @@ html {
 .btn-action.btn-delete:hover {
     background: var(--primary-red);
     color: var(--white);
+}
+
+/* ===== Sleek Vehicle Hero Section with Photo ===== */
+.vehicle-hero-sleek {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-xl);
+    background: linear-gradient(135deg, var(--black) 0%, var(--medium-gray) 100%);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg) var(--space-xl);
+    margin-bottom: var(--space-lg);
+    position: relative;
+    overflow: hidden;
+    align-items: center;
+}
+
+.vehicle-hero-sleek::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--lighter-gray);
+}
+
+.vehicle-hero-sleek.primary::before {
+    background: var(--primary-red);
+}
+
+/* Hero Left Column - Vehicle Identity */
+.hero-identity {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: var(--white);
+}
+
+.hero-nickname {
+    font-size: var(--font-size-sm);
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0 0 var(--space-xs) 0;
+    font-weight: 500;
+}
+
+.hero-title {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    margin: 0 0 var(--space-sm) 0;
+    color: var(--white);
+    line-height: 1.2;
+}
+
+.hero-tags {
+    display: flex;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-sm);
+}
+
+.hero-tags .tag {
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+}
+
+.hero-tags .tag-primary {
+    background: var(--primary-red);
+    color: var(--white);
+}
+
+/* Quick Stats in Hero */
+.hero-quick-stats {
+    display: flex;
+    gap: var(--space-md);
+    margin-top: var(--space-xs);
+}
+
+.quick-stat {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--font-size-sm);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.quick-stat svg {
+    opacity: 0.6;
+}
+
+/* Hero Photo Placeholder */
+.hero-photo {
+    width: 180px;
+    height: 120px;
+    flex-shrink: 0;
+}
+
+.photo-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    border-radius: var(--radius-lg);
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    color: rgba(255, 255, 255, 0.3);
+    transition: all var(--transition-base);
+}
+
+.photo-placeholder:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.5);
+    background: linear-gradient(145deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 100%);
+}
+
+.photo-hint {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+}
+
+/* ===== Details & Summary Compact Grid ===== */
+.details-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+@media (min-width: 992px) {
+    .details-summary-grid {
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+    }
+    
+    .details-summary-grid .service-card {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Compact card header */
+.compact-header {
+    padding: var(--space-sm) var(--space-md);
+    background: transparent;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.compact-header h3 {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    color: var(--gray);
+}
+
+.compact-header h3 svg {
+    opacity: 0.7;
+}
+
+/* Compact card body */
+.compact-body {
+    padding: var(--space-sm) var(--space-md);
+}
+
+/* Inline detail grid for compact layout */
+.detail-grid.inline-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-lg);
+    align-items: baseline;
+}
+
+.detail-grid.inline-grid .detail-item {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-xs);
+    flex-direction: row;
+}
+
+.detail-grid.inline-grid .detail-item.full-width {
+    width: 100%;
+    flex-basis: 100%;
+}
+
+.detail-grid.inline-grid .detail-label {
+    font-size: 0.65rem;
+    white-space: nowrap;
+}
+
+.detail-grid.inline-grid .detail-value {
+    font-size: var(--font-size-sm);
+}
+
+.detail-grid.inline-grid .detail-value.vin {
+    font-size: var(--font-size-xs);
+    padding: 2px 6px;
+}
+
+.detail-grid.inline-grid .detail-value.notes {
+    font-size: var(--font-size-sm);
+    padding: var(--space-xs) var(--space-sm);
+}
+
+/* Compact summary stats */
+.summary-stats.compact-stats {
+    display: flex;
+    justify-content: flex-start;
+    gap: var(--space-lg);
+    flex-wrap: wrap;
+}
+
+.summary-stats.compact-stats .summary-stat {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-xs);
+    flex-direction: row;
+}
+
+.summary-stats.compact-stats .summary-value {
+    font-size: var(--font-size-base);
+    font-weight: 700;
+}
+
+.summary-stats.compact-stats .summary-label {
+    font-size: 0.65rem;
+}
+
+
+/* Edit Form Grid inside cards */
+.edit-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+}
+
+.edit-form-grid.compact {
+    gap: var(--space-sm);
+}
+
+.edit-form-grid .edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.edit-form-grid .edit-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.edit-form-grid .edit-field label {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* Compact card styling */
+.compact-card {
+    margin-bottom: 0;
+}
+
+.details-summary-grid .compact-card {
+    height: fit-content;
+}
+
+.compact-card .detail-card-header h3 {
+    font-size: var(--font-size-sm);
+}
+
+.compact-card .detail-card-body.compact {
+    padding: var(--space-md);
+}
+
+.detail-grid.compact {
+    gap: var(--space-sm);
+}
+
+.detail-grid.compact .detail-label {
+    font-size: 0.65rem;
+}
+
+.detail-grid.compact .detail-value {
+    font-size: var(--font-size-sm);
+}
+
+.detail-grid.compact .detail-value.vin {
+    font-size: var(--font-size-xs);
+}
+
+.detail-grid.compact .detail-value.notes {
+    font-size: var(--font-size-sm);
+    padding: var(--space-xs) var(--space-sm);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-red);
+}
+
+.mt-1 {
+    margin-top: var(--space-xs);
+}
+
+/* Empty hint for cards */
+.empty-hint {
+    color: var(--light-gray);
+    font-size: var(--font-size-sm);
+    text-align: center;
+    padding: var(--space-md) 0;
+    margin: 0;
+}
+
+/* Responsive for sleek hero */
+@media (max-width: 768px) {
+    .vehicle-hero-sleek {
+        grid-template-columns: 1fr;
+        gap: var(--space-md);
+        padding: var(--space-lg);
+    }
+    
+    .hero-photo {
+        width: 100%;
+        height: 100px;
+    }
+    
+    .hero-title {
+        font-size: var(--font-size-xl);
+    }
+    
+    .edit-form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .edit-form-grid .edit-field.full-width {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-quick-stats {
+        flex-direction: column;
+        gap: var(--space-xs);
+    }
+}
+
+/* Notes section in tracking card */
+.notes-section {
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--card-border);
+}
+
+.notes-label {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--light-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-xs);
+}
+
+.notes-text {
+    font-size: var(--font-size-sm);
+    color: var(--body-text);
+    margin: 0;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+/* Tracking display in card */
+.tracking-display {
+    display: flex;
+    gap: var(--space-xl);
+    align-items: center;
+    padding: var(--space-sm) 0;
+}
+
+.tracking-stat {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.tracking-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--primary-red) 0%, var(--dark-red) 100%);
+    color: var(--white);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(209, 0, 0, 0.2);
+}
+
+.tracking-icon.secondary {
+    width: 40px;
+    height: 40px;
+    background: var(--lightest-gray);
+    color: var(--gray);
+    box-shadow: none;
+}
+
+.tracking-value {
+    display: flex;
+    flex-direction: column;
+}
+
+.tracking-value .value {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--heading-text);
+    line-height: 1.1;
+}
+
+.tracking-value .label {
+    font-size: var(--font-size-xs);
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 /* Vehicle Hero Section */

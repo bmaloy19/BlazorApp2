@@ -189,6 +189,7 @@ public class VehicleService
         return existing;
     }
 
+
     /// <summary>
     /// Update the user-vehicle relationship (nickname, primary status)
     /// </summary>

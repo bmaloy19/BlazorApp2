@@ -98,136 +98,130 @@
             </div>
         }
 
-        @* Vehicle Hero Section *@
-        <div class="vehicle-hero @(_userVehicle?.IsPrimary == true ? "primary" : "")">
-            <div class="vehicle-hero-content">
-                <div class="vehicle-hero-badges">
-                    <span class="year-badge">@_vehicle.Year</span>
-                    @if (!string.IsNullOrEmpty(_vehicle.BodyClass))
-                    {
-                        <span class="body-badge">@_vehicle.BodyClass</span>
-                    }
-                    @if (_userVehicle?.IsPrimary == true)
-                    {
-                        <span class="primary-badge">Primary Vehicle</span>
-                    }
-                </div>
+        @* Sleek Vehicle Hero Section with Photo *@
+        <div class="vehicle-hero-sleek @(_userVehicle?.IsPrimary == true ? "primary" : "")">
+            @* Left: Vehicle Identity *@
+            <div class="hero-identity">
                 @if (!string.IsNullOrEmpty(_userVehicle?.Nickname))
                 {
-                    <p class="vehicle-hero-nickname">@_userVehicle.Nickname</p>
+                    <p class="hero-nickname">@_userVehicle.Nickname</p>
                 }
-                <h1 class="vehicle-hero-title">@_vehicle.Make?.Name @_vehicle.Model</h1>
-                @if (!string.IsNullOrEmpty(_vehicle.Series) || !string.IsNullOrEmpty(_vehicle.Trim))
-                {
-                    <p class="vehicle-hero-subtitle">
-                        @if (!string.IsNullOrEmpty(_vehicle.Series))
-                        {
-                            <span>@_vehicle.Series</span>
-                        }
-                        @if (!string.IsNullOrEmpty(_vehicle.Series) && !string.IsNullOrEmpty(_vehicle.Trim))
-                        {
-                            <span> · </span>
-                        }
-                        @if (!string.IsNullOrEmpty(_vehicle.Trim))
-                        {
-                            <span>@_vehicle.Trim</span>
-                        }
-                    </p>
-                }
-                @if (!string.IsNullOrEmpty(_vehicle.Engine) || !string.IsNullOrEmpty(_vehicle.Drivetrain))
-                {
-                    <div class="vehicle-hero-specs">
-                        @if (!string.IsNullOrEmpty(_vehicle.Engine))
-                        {
-                            <span class="spec-badge">@_vehicle.Engine</span>
-                        }
-                        @if (!string.IsNullOrEmpty(_vehicle.Drivetrain))
-                        {
-                            <span class="spec-badge">@_vehicle.Drivetrain</span>
-                        }
-                    </div>
-                }
-                <div class="vehicle-hero-meta">
-                    <span class="meta-item">Added @_vehicle.CreatedAt.ToString("MMM d, yyyy")</span>
-                    @if (_vehicle.UpdatedAt.HasValue)
+                <h1 class="hero-title">@_vehicle.Year @_vehicle.Make?.Name @_vehicle.Model</h1>
+                <div class="hero-tags">
+                    @if (_userVehicle?.IsPrimary == true)
                     {
-                        <span class="meta-item">Updated @_vehicle.UpdatedAt.Value.ToString("MMM d, yyyy")</span>
+                        <span class="tag tag-primary">Primary</span>
+                    }
+                    @if (!string.IsNullOrEmpty(_vehicle.BodyClass))
+                    {
+                        <span class="tag">@_vehicle.BodyClass</span>
+                    }
+                    @if (!string.IsNullOrEmpty(_vehicle.Series))
+                    {
+                        <span class="tag">@_vehicle.Series</span>
+                    }
+                    @if (!string.IsNullOrEmpty(_vehicle.Trim))
+                    {
+                        <span class="tag">@_vehicle.Trim</span>
+                    }
+                    @if (!string.IsNullOrEmpty(_vehicle.Engine))
+                    {
+                        <span class="tag">@_vehicle.Engine</span>
+                    }
+                    @if (!string.IsNullOrEmpty(_vehicle.Drivetrain))
+                    {
+                        <span class="tag">@_vehicle.Drivetrain</span>
+                    }
+                </div>
+                @* Quick stats inline *@
+                <div class="hero-quick-stats">
+                    @if (_vehicle.CurrentMiles.HasValue)
+                    {
+                        <span class="quick-stat">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z"/>
+                                <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z"/>
+                            </svg>
+                            @_vehicle.CurrentMiles.Value.ToString("N0") mi
+                        </span>
+                    }
+                    @if (_vehicle.TrackHours && _vehicle.CurrentHours.HasValue)
+                    {
+                        <span class="quick-stat">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                            </svg>
+                            @_vehicle.CurrentHours.Value.ToString("N1") hrs
+                        </span>
                     }
                 </div>
             </div>
-            <div class="vehicle-hero-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679c.033.161.049.325.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.807.807 0 0 0 .381-.404l.792-1.848ZM3 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2H6ZM2.906 5.189a.51.51 0 0 0 .497.731c.91-.073 3.35-.17 4.597-.17 1.247 0 3.688.097 4.597.17a.51.51 0 0 0 .497-.731l-.956-1.913A.5.5 0 0 0 11.691 3H4.309a.5.5 0 0 0-.447.276L2.906 5.19Z"/>
-                </svg>
+            
+            @* Right: Vehicle Photo *@
+            <div class="hero-photo">
+                <div class="photo-placeholder">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679c.033.161.049.325.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.807.807 0 0 0 .381-.404l.792-1.848ZM3 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm10 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2H6ZM2.906 5.189a.51.51 0 0 0 .497.731c.91-.073 3.35-.17 4.597-.17 1.247 0 3.688.097 4.597.17a.51.51 0 0 0 .497-.731l-.956-1.913A.5.5 0 0 0 11.691 3H4.309a.5.5 0 0 0-.447.276L2.906 5.19Z"/>
+                    </svg>
+                    <span class="photo-hint">Photo coming soon</span>
+                </div>
             </div>
         </div>
 
-        @* Main Content Grid *@
-        <div class="vehicle-content-grid @(_isEditing ? "editing-mode" : "")">
-            
-            @* Vehicle Information Card - Full Width Top Row *@
-            <div class="detail-card info-card full-width-card">
-                <div class="detail-card-header">
+        @* Main Content Grid - Details & Summary side by side *@
+        <div class="vehicle-content-grid details-summary-grid">
+            @* Vehicle Details Card *@
+            <div class="detail-card info-card compact-card">
+                <div class="detail-card-header compact-header">
                     <h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
                         </svg>
-                        Vehicle Information
+                        Details
                     </h3>
                 </div>
-                <div class="detail-card-body">
+                <div class="detail-card-body compact-body">
                     @if (_isEditing)
                     {
-                        <div class="edit-form">
-                            <div class="form-row">
-                                <div class="form-group full-width">
-                                    <label>Nickname</label>
-                                    <input type="text" class="form-control" @bind="_editNickname" placeholder="e.g. 'Daily Driver', 'The Beast'" maxlength="120" />
-                                    <span class="form-hint">A friendly name for easy identification</span>
+                        <div class="edit-form-grid compact">
+                            <div class="edit-field full-width">
+                                <label>VIN</label>
+                                <input type="text" class="form-control form-control-sm vin-input" @bind="_editVehicle!.Vin" maxlength="17" placeholder="17-character VIN" />
+                            </div>
+                            <div class="edit-field">
+                                <label>Color</label>
+                                <input type="text" class="form-control form-control-sm" @bind="_editVehicle!.Color" placeholder="e.g. Midnight Blue" />
+                            </div>
+                            <div class="edit-field">
+                                <label>License Plate</label>
+                                <input type="text" class="form-control form-control-sm" @bind="_editVehicle!.LicensePlate" placeholder="ABC-1234" />
+                            </div>
+                            <div class="edit-field">
+                                <label>Nickname</label>
+                                <input type="text" class="form-control form-control-sm" @bind="_editNickname" placeholder="e.g. Daily Driver" />
+                            </div>
+                            <div class="edit-field">
+                                <label>Mileage</label>
+                                <div class="input-with-unit">
+                                    <input type="number" class="form-control form-control-sm" @bind="_editVehicle!.CurrentMiles" placeholder="0" />
+                                    <span class="unit">mi</span>
                                 </div>
                             </div>
-                            <div class="form-row three-col">
-                                <div class="form-group">
-                                    <label>VIN</label>
-                                    <input type="text" class="form-control vin-input" @bind="_editVehicle!.Vin" placeholder="17-character VIN" maxlength="17" />
-                                </div>
-                                <div class="form-group">
-                                    <label>Color</label>
-                                    <input type="text" class="form-control" @bind="_editVehicle!.Color" placeholder="e.g. Midnight Black" />
-                                </div>
-                                <div class="form-group">
-                                    <label>License Plate</label>
-                                    <input type="text" class="form-control" @bind="_editVehicle!.LicensePlate" placeholder="ABC-1234" />
-                                </div>
-                            </div>
-                            <div class="form-group">
+                            <div class="edit-field full-width">
                                 <label>Notes</label>
-                                <textarea class="form-control" @bind="_editVehicle!.Notes" rows="3" placeholder="Any notes about this vehicle..."></textarea>
+                                <textarea class="form-control form-control-sm" @bind="_editVehicle!.Notes" rows="2" placeholder="Notes about this vehicle..."></textarea>
                             </div>
                         </div>
                     }
                     else
                     {
-                        <div class="detail-grid wide">
+                        <div class="detail-grid compact inline-grid">
                             @if (!string.IsNullOrEmpty(_vehicle.Vin))
                             {
-                                <div class="detail-item">
+                                <div class="detail-item full-width">
                                     <span class="detail-label">VIN</span>
                                     <span class="detail-value vin">@_vehicle.Vin</span>
-                                </div>
-                            }
-                            @if (!string.IsNullOrEmpty(_vehicle.VehicleType))
-                            {
-                                <div class="detail-item">
-                                    <span class="detail-label">Vehicle Type</span>
-                                    <span class="detail-value">@_vehicle.VehicleType</span>
-                                </div>
-                            }
-                            @if (!string.IsNullOrEmpty(_vehicle.BodyClass))
-                            {
-                                <div class="detail-item">
-                                    <span class="detail-label">Body Style</span>
-                                    <span class="detail-value">@_vehicle.BodyClass</span>
                                 </div>
                             }
                             @if (!string.IsNullOrEmpty(_vehicle.Color))
@@ -244,20 +238,17 @@
                                     <span class="detail-value">@_vehicle.LicensePlate</span>
                                 </div>
                             }
-                            @if (!string.IsNullOrEmpty(_vehicle.Engine))
+                            @if (_vehicle.CurrentMiles.HasValue)
                             {
                                 <div class="detail-item">
-                                    <span class="detail-label">Engine</span>
-                                    <span class="detail-value">@_vehicle.Engine</span>
+                                    <span class="detail-label">Mileage</span>
+                                    <span class="detail-value">@_vehicle.CurrentMiles.Value.ToString("N0") mi</span>
                                 </div>
                             }
-                            @if (!string.IsNullOrEmpty(_vehicle.Drivetrain))
-                            {
-                                <div class="detail-item">
-                                    <span class="detail-label">Drivetrain</span>
-                                    <span class="detail-value">@_vehicle.Drivetrain</span>
-                                </div>
-                            }
+                            <div class="detail-item">
+                                <span class="detail-label">Added</span>
+                                <span class="detail-value">@_vehicle.CreatedAt.ToString("MMM d, yyyy")</span>
+                            </div>
                             @if (!string.IsNullOrEmpty(_vehicle.Notes))
                             {
                                 <div class="detail-item full-width">
@@ -265,95 +256,7 @@
                                     <span class="detail-value notes">@_vehicle.Notes</span>
                                 </div>
                             }
-                            @if (!HasAnyDetails())
-                            {
-                                <div class="empty-details">
-                                    <p>No additional details</p>
-                                    <span>Click Edit to add more information</span>
-                                </div>
-                            }
                         </div>
-                    }
-                </div>
-            </div>
-
-            @* Odometer / Hours Tracking Card *@
-            <div class="detail-card tracking-card">
-                <div class="detail-card-header">
-                    <h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z"/>
-                            <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z"/>
-                        </svg>
-                        Odometer & Hours
-                    </h3>
-                </div>
-                <div class="detail-card-body">
-                    @if (_isEditing)
-                    {
-                        <div class="tracking-edit-form">
-                            <div class="tracking-input-group">
-                                <label>Current Mileage</label>
-                                <div class="input-with-unit">
-                                    <input type="number" class="form-control" @bind="_editVehicle!.CurrentMiles" placeholder="0" />
-                                    <span class="unit">miles</span>
-                                </div>
-                            </div>
-                            <div class="tracking-divider"></div>
-                            <div class="tracking-toggle">
-                                <label class="toggle-label">
-                                    <input type="checkbox" @bind="_editVehicle!.TrackHours" />
-                                    <span class="toggle-text">Track Engine Hours</span>
-                                    <span class="toggle-hint">For equipment, boats, or vehicles with hour meters</span>
-                                </label>
-                            </div>
-                            @if (_editVehicle!.TrackHours)
-                            {
-                                <div class="tracking-input-group">
-                                    <label>Current Hours</label>
-                                    <div class="input-with-unit">
-                                        <input type="number" step="0.1" class="form-control" @bind="_editVehicle!.CurrentHours" placeholder="0" />
-                                        <span class="unit">hours</span>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="tracking-display">
-                            <div class="tracking-stat main">
-                                <div class="tracking-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
-                                        <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z"/>
-                                        <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z"/>
-                                    </svg>
-                                </div>
-                                <div class="tracking-value">
-                                    <span class="value">@(_vehicle.CurrentMiles?.ToString("N0") ?? "—")</span>
-                                    <span class="label">miles</span>
-                                </div>
-                            </div>
-                            @if (_vehicle.TrackHours)
-                            {
-                                <div class="tracking-stat">
-                                    <div class="tracking-icon secondary">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
-                                            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
-                                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
-                                        </svg>
-                                    </div>
-                                    <div class="tracking-value">
-                                        <span class="value">@(_vehicle.CurrentHours?.ToString("N1") ?? "—")</span>
-                                        <span class="label">hours</span>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                        @if (!_vehicle.CurrentMiles.HasValue && !_vehicle.TrackHours)
-                        {
-                            <p class="tracking-hint">Click Edit to add mileage or enable hour tracking</p>
-                        }
                     }
                 </div>
             </div>
@@ -361,18 +264,18 @@
             @* Maintenance Summary Card - Hidden when editing *@
             @if (!_isEditing)
             {
-                <div class="detail-card summary-card">
-                    <div class="detail-card-header">
+                <div class="detail-card summary-card compact-card">
+                    <div class="detail-card-header compact-header">
                         <h3>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
                                 <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
                                 <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
                             </svg>
-                            Maintenance Summary
+                            Summary
                         </h3>
                     </div>
-                    <div class="detail-card-body">
-                        <div class="summary-stats">
+                    <div class="detail-card-body compact-body">
+                        <div class="summary-stats compact-stats">
                             <div class="summary-stat">
                                 <span class="summary-value">@_serviceRecords.Count</span>
                                 <span class="summary-label">Service Records</span>
@@ -494,6 +397,7 @@
     private Vehicle? _editVehicle;
     private UserVehicle? _userVehicle;
     private string? _editNickname;
+    
     private List<ServiceRecord> _serviceRecords = new();
     private string? _userId;
     private bool _isLoading = true;
@@ -534,17 +438,6 @@
         }
     }
 
-    private bool HasAnyDetails()
-    {
-        return !string.IsNullOrEmpty(_vehicle?.Vin) ||
-               !string.IsNullOrEmpty(_vehicle?.VehicleType) ||
-               !string.IsNullOrEmpty(_vehicle?.BodyClass) ||
-               !string.IsNullOrEmpty(_vehicle?.Color) ||
-               !string.IsNullOrEmpty(_vehicle?.LicensePlate) ||
-               !string.IsNullOrEmpty(_vehicle?.Engine) ||
-               !string.IsNullOrEmpty(_vehicle?.Drivetrain) ||
-               !string.IsNullOrEmpty(_vehicle?.Notes);
-    }
 
     private void GoBack() => NavigationManager.NavigateTo("/garage");
 
@@ -556,8 +449,6 @@
             Color = _vehicle.Color,
             LicensePlate = _vehicle.LicensePlate,
             CurrentMiles = _vehicle.CurrentMiles,
-            CurrentHours = _vehicle.CurrentHours,
-            TrackHours = _vehicle.TrackHours,
             Vin = _vehicle.Vin,
             Notes = _vehicle.Notes
         };
@@ -579,13 +470,13 @@
         StateHasChanged();
         try
         {
+            // Update vehicle info
             _vehicle.Color = _editVehicle.Color;
             _vehicle.LicensePlate = _editVehicle.LicensePlate;
             _vehicle.CurrentMiles = _editVehicle.CurrentMiles;
-            _vehicle.CurrentHours = _editVehicle.CurrentHours;
-            _vehicle.TrackHours = _editVehicle.TrackHours;
             _vehicle.Vin = _editVehicle.Vin;
             _vehicle.Notes = _editVehicle.Notes;
+            
             await VehicleService.UpdateVehicleAsync(_vehicle);
             
             // Update nickname in UserVehicle
