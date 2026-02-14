@@ -47,6 +47,15 @@
             <div class="header-actions">
                 @if (!_isEditing)
                 {
+                    @if (_userVehicle?.Role == "owner")
+                    {
+                        <button class="btn-action btn-share" @onclick="ShowShareModal">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5zm-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
+                            </svg>
+                            Share
+                        </button>
+                    }
                     <button class="btn-action btn-edit" @onclick="StartEditing">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
@@ -387,6 +396,80 @@
                 <p class="delete-warning">This action cannot be undone. All service records for this vehicle will also be deleted.</p>
             </Content>
         </ConfirmDialog>
+
+        @* Share Vehicle Modal *@
+        @if (_showShareModal)
+        {
+            <div class="modal-overlay" @onclick="CloseShareModal">
+                <div class="modal-dialog share-modal" @onclick:stopPropagation="true">
+                    <div class="modal-header">
+                        <h3>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/>
+                            </svg>
+                            Share Vehicle
+                        </h3>
+                        <button class="modal-close" @onclick="CloseShareModal">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="share-vehicle-preview">
+                            <span class="share-vehicle-name">@_vehicle.Year @_vehicle.Make?.Name @_vehicle.Model</span>
+                            @if (!string.IsNullOrEmpty(_userVehicle?.Nickname))
+                            {
+                                <span class="share-vehicle-nickname">"@_userVehicle.Nickname"</span>
+                            }
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="shareEmail">User Email</label>
+                            <input type="email" 
+                                   id="shareEmail" 
+                                   class="form-control @(!string.IsNullOrEmpty(_shareError) ? "is-invalid" : "") @(_shareSuccess ? "is-valid" : "")"
+                                   placeholder="Enter email address"
+                                   @bind="_shareEmail"
+                                   @bind:event="oninput"
+                                   disabled="@_isSharing" />
+                            @if (!string.IsNullOrEmpty(_shareError))
+                            {
+                                <div class="invalid-feedback">@_shareError</div>
+                            }
+                            @if (_shareSuccess)
+                            {
+                                <div class="valid-feedback">Vehicle shared successfully!</div>
+                            }
+                        </div>
+                        
+                        <p class="share-hint">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                            </svg>
+                            The user will be able to view this vehicle and its service history.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" @onclick="CloseShareModal" disabled="@_isSharing">Cancel</button>
+                        <button class="btn btn-primary" @onclick="ShareVehicle" disabled="@(_isSharing || string.IsNullOrWhiteSpace(_shareEmail))">
+                            @if (_isSharing)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <span>Sharing...</span>
+                            }
+                            else
+                            {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/>
+                                </svg>
+                                <span>Share Vehicle</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
     }
 </div>
 
@@ -405,6 +488,13 @@
     private bool _isSaving;
     private string? _errorMessage;
     private ConfirmDialog? _deleteConfirmDialog;
+    
+    // Share modal state
+    private bool _showShareModal;
+    private string _shareEmail = string.Empty;
+    private string? _shareError;
+    private bool _isSharing;
+    private bool _shareSuccess;
 
     protected override async Task OnInitializedAsync()
     {
@@ -545,5 +635,61 @@
     }
 
     private void AddServiceRecord() => NavigationManager.NavigateTo($"/garage/vehicle/{VehicleId}/service/add");
+
+    // Share modal methods
+    private void ShowShareModal()
+    {
+        _showShareModal = true;
+        _shareEmail = string.Empty;
+        _shareError = null;
+        _shareSuccess = false;
+    }
+
+    private void CloseShareModal()
+    {
+        _showShareModal = false;
+        _shareEmail = string.Empty;
+        _shareError = null;
+        _shareSuccess = false;
+    }
+
+    private async Task ShareVehicle()
+    {
+        if (string.IsNullOrWhiteSpace(_shareEmail) || _userId is null) return;
+        
+        _isSharing = true;
+        _shareError = null;
+        _shareSuccess = false;
+        StateHasChanged();
+        
+        try
+        {
+            var result = await VehicleService.ShareVehicleByEmailAsync(VehicleId, _userId, _shareEmail.Trim());
+            
+            if (result.Success)
+            {
+                _shareSuccess = true;
+                _shareEmail = string.Empty;
+                // Auto-close after a short delay
+                StateHasChanged();
+                await Task.Delay(1500);
+                CloseShareModal();
+            }
+            else
+            {
+                _shareError = result.ErrorMessage;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error sharing vehicle: {ex.Message}");
+            _shareError = "An error occurred while sharing the vehicle.";
+        }
+        finally
+        {
+            _isSharing = false;
+            StateHasChanged();
+        }
+    }
 }
 

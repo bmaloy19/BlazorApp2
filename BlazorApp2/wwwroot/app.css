@@ -2192,6 +2192,87 @@ html {
     color: var(--white);
 }
 
+/* Garage Tabs */
+.garage-tabs {
+    display: flex;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-lg);
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: var(--space-xs);
+}
+
+.garage-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--gray);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.garage-tab::after {
+    content: '';
+    position: absolute;
+    bottom: calc(-1 * var(--space-xs) - 1px);
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: transparent;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    transition: background var(--transition-fast);
+}
+
+.garage-tab:hover {
+    color: var(--heading-text);
+    background: var(--lightest-gray);
+}
+
+.garage-tab.active {
+    color: var(--primary-red);
+    background: transparent;
+}
+
+.garage-tab.active::after {
+    background: var(--primary-red);
+}
+
+.garage-tab svg {
+    opacity: 0.7;
+}
+
+.garage-tab.active svg {
+    opacity: 1;
+}
+
+.tab-count {
+    background: var(--lightest-gray);
+    color: var(--gray);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
+.garage-tab.active .tab-count {
+    background: rgba(209, 0, 0, 0.1);
+    color: var(--primary-red);
+}
+
+/* Empty State Container */
+.empty-state-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
 .garage-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -4013,6 +4094,144 @@ html {
 .btn-action.btn-delete:hover {
     background: var(--primary-red);
     color: var(--white);
+}
+
+.btn-action.btn-share {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--info);
+}
+
+.btn-action.btn-share:hover {
+    background: var(--info);
+    color: var(--white);
+}
+
+/* Share Modal */
+.share-modal {
+    max-width: 480px;
+}
+
+.share-modal .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--card-border);
+}
+
+.share-modal .modal-header h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    margin: 0;
+    color: var(--heading-text);
+}
+
+.share-modal .modal-header h3 svg {
+    color: var(--info);
+}
+
+.share-modal .modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--lightest-gray);
+    border-radius: var(--radius-md);
+    color: var(--gray);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.share-modal .modal-close:hover {
+    background: var(--lighter-gray);
+    color: var(--heading-text);
+}
+
+.share-modal .modal-body {
+    padding: var(--space-lg);
+}
+
+.share-vehicle-preview {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding: var(--space-md);
+    background: var(--lightest-gray);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-lg);
+}
+
+.share-vehicle-name {
+    font-weight: 600;
+    color: var(--heading-text);
+}
+
+.share-vehicle-nickname {
+    font-size: var(--font-size-sm);
+    color: var(--gray);
+    font-style: italic;
+}
+
+.share-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+    font-size: var(--font-size-sm);
+    color: var(--gray);
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(59, 130, 246, 0.05);
+    border-radius: var(--radius-md);
+    border-left: 3px solid var(--info);
+}
+
+.share-hint svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--info);
+}
+
+.share-modal .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-lg);
+    border-top: 1px solid var(--card-border);
+    background: var(--lightest-gray);
+}
+
+.share-modal .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+/* Form validation states */
+.form-control.is-invalid {
+    border-color: var(--primary-red);
+}
+
+.form-control.is-valid {
+    border-color: var(--success);
+}
+
+.invalid-feedback {
+    display: block;
+    font-size: var(--font-size-sm);
+    color: var(--primary-red);
+    margin-top: var(--space-xs);
+}
+
+.valid-feedback {
+    display: block;
+    font-size: var(--font-size-sm);
+    color: var(--success);
+    margin-top: var(--space-xs);
 }
 
 /* ===== Sleek Vehicle Hero Section with Photo ===== */

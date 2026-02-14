@@ -30,53 +30,128 @@
         </div>
     </div>
 
+    @* Garage Tabs *@
+    <div class="garage-tabs">
+        <button class="garage-tab @(_garageTab == GarageTab.MyVehicles ? "active" : "")" @onclick="() => SetGarageTab(GarageTab.MyVehicles)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M2.52 3.515A2.5 2.5 0 0 1 4.82 2h6.362c1 0 1.904.596 2.298 1.515l.792 1.848c.075.175.21.319.38.404.5.25.855.715.965 1.262l.335 1.679c.033.161.049.325.049.49v.413c0 .814-.39 1.543-1 1.997V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.338c-1.292.048-2.745.088-4 .088s-2.708-.04-4-.088V13.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-1.892c-.61-.454-1-1.183-1-1.997v-.413a2.5 2.5 0 0 1 .049-.49l.335-1.68c.11-.546.465-1.012.964-1.261a.807.807 0 0 0 .381-.404l.792-1.848Z"/>
+            </svg>
+            My Vehicles
+            @if (_ownedVehicles.Any())
+            {
+                <span class="tab-count">@_ownedVehicles.Count</span>
+            }
+        </button>
+        <button class="garage-tab @(_garageTab == GarageTab.SharedWithMe ? "active" : "")" @onclick="() => SetGarageTab(GarageTab.SharedWithMe)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8Zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022ZM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816ZM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/>
+            </svg>
+            Shared With Me
+            @if (_sharedVehicles.Any())
+            {
+                <span class="tab-count">@_sharedVehicles.Count</span>
+            }
+        </button>
+    </div>
+
     @if (_isLoading)
     {
         <LoadingState Message="Loading your vehicles..." />
     }
-    else if (_viewMode == ViewMode.Card)
+    else if (_garageTab == GarageTab.MyVehicles)
     {
-        <div class="garage-grid">
-            @foreach (var userVehicle in _userVehicles)
-            {
-                <VehicleCard 
-                    Vehicle="userVehicle.Vehicle" 
-                    UserVehicle="userVehicle"
-                    DisplayMode="VehicleCard.Mode.Card"
-                    OnClick="() => ViewVehicle(userVehicle)" />
-            }
+        @* My Vehicles Tab *@
+        @if (_viewMode == ViewMode.Card)
+        {
+            <div class="garage-grid">
+                @foreach (var userVehicle in _ownedVehicles)
+                {
+                    <VehicleCard 
+                        Vehicle="userVehicle.Vehicle" 
+                        UserVehicle="userVehicle"
+                        DisplayMode="VehicleCard.Mode.Card"
+                        OnClick="() => ViewVehicle(userVehicle)" />
+                }
 
-            <AddVehicleCard 
-                DisplayMode="AddVehicleCard.Mode.Card"
-                OnClick="OpenAddVehicleModal" />
-        </div>
+                <AddVehicleCard 
+                    DisplayMode="AddVehicleCard.Mode.Card"
+                    OnClick="OpenAddVehicleModal" />
+            </div>
+        }
+        else
+        {
+            <div class="garage-list">
+                @foreach (var userVehicle in _ownedVehicles)
+                {
+                    <VehicleCard 
+                        Vehicle="userVehicle.Vehicle" 
+                        UserVehicle="userVehicle"
+                        DisplayMode="VehicleCard.Mode.List"
+                        OnClick="() => ViewVehicle(userVehicle)" />
+                }
+
+                <AddVehicleCard 
+                    DisplayMode="AddVehicleCard.Mode.List"
+                    OnClick="OpenAddVehicleModal" />
+            </div>
+        }
     }
     else
     {
-        <div class="garage-list">
-            @foreach (var userVehicle in _userVehicles)
-            {
-                <VehicleCard 
-                    Vehicle="userVehicle.Vehicle" 
-                    UserVehicle="userVehicle"
-                    DisplayMode="VehicleCard.Mode.List"
-                    OnClick="() => ViewVehicle(userVehicle)" />
-            }
-
-            <AddVehicleCard 
-                DisplayMode="AddVehicleCard.Mode.List"
-                OnClick="OpenAddVehicleModal" />
-        </div>
+        @* Shared With Me Tab *@
+        @if (!_sharedVehicles.Any())
+        {
+            <div class="empty-state-container">
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8Zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022ZM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816ZM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/>
+                        </svg>
+                    </div>
+                    <p>No vehicles shared with you yet</p>
+                    <span class="empty-hint">When someone shares a vehicle with you, it will appear here</span>
+                </div>
+            </div>
+        }
+        else if (_viewMode == ViewMode.Card)
+        {
+            <div class="garage-grid">
+                @foreach (var userVehicle in _sharedVehicles)
+                {
+                    <VehicleCard 
+                        Vehicle="userVehicle.Vehicle" 
+                        UserVehicle="userVehicle"
+                        DisplayMode="VehicleCard.Mode.Card"
+                        OnClick="() => ViewVehicle(userVehicle)" />
+                }
+            </div>
+        }
+        else
+        {
+            <div class="garage-list">
+                @foreach (var userVehicle in _sharedVehicles)
+                {
+                    <VehicleCard 
+                        Vehicle="userVehicle.Vehicle" 
+                        UserVehicle="userVehicle"
+                        DisplayMode="VehicleCard.Mode.List"
+                        OnClick="() => ViewVehicle(userVehicle)" />
+                }
+            </div>
+        }
     }
 </div>
 
 @code {
     private ViewMode _viewMode = ViewMode.Card;
-    private List<UserVehicle> _userVehicles = new();
+    private GarageTab _garageTab = GarageTab.MyVehicles;
+    private List<UserVehicle> _ownedVehicles = new();
+    private List<UserVehicle> _sharedVehicles = new();
     private bool _isLoading = true;
     private string? _userId;
     
     private enum ViewMode { Card, List }
+    private enum GarageTab { MyVehicles, SharedWithMe }
 
     protected override async Task OnInitializedAsync()
     {
@@ -94,7 +169,8 @@
 
             if (!string.IsNullOrEmpty(_userId))
             {
-                _userVehicles = await VehicleService.GetUserVehiclesAsync(_userId);
+                _ownedVehicles = await VehicleService.GetOwnedVehiclesAsync(_userId);
+                _sharedVehicles = await VehicleService.GetSharedVehiclesAsync(_userId);
             }
         }
         catch (Exception ex)
@@ -110,6 +186,12 @@
     private void SetViewMode(ViewMode mode)
     {
         _viewMode = mode;
+        StateHasChanged();
+    }
+    
+    private void SetGarageTab(GarageTab tab)
+    {
+        _garageTab = tab;
         StateHasChanged();
     }
     

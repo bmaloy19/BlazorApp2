@@ -29,6 +29,51 @@ public class VehicleService
     }
 
     /// <summary>
+    /// Get vehicles owned by the user (Role = "owner")
+    /// </summary>
+    public async Task<List<UserVehicle>> GetOwnedVehiclesAsync(string userId)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+        return await context.UserVehicles
+            .Include(uv => uv.Vehicle)
+                .ThenInclude(v => v.Make)
+            .Where(uv => uv.UserId == userId && uv.Role == "owner")
+            .OrderByDescending(uv => uv.IsPrimary)
+            .ThenByDescending(uv => uv.CreatedAt)
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// Get vehicles shared with the user (Role != "owner")
+    /// </summary>
+    public async Task<List<UserVehicle>> GetSharedVehiclesAsync(string userId)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+        return await context.UserVehicles
+            .Include(uv => uv.Vehicle)
+                .ThenInclude(v => v.Make)
+            .Include(uv => uv.Vehicle)
+                .ThenInclude(v => v.UserVehicles)
+                    .ThenInclude(uv => uv.User)
+            .Where(uv => uv.UserId == userId && uv.Role != "owner")
+            .OrderByDescending(uv => uv.CreatedAt)
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// Get the owner of a vehicle
+    /// </summary>
+    public async Task<ApplicationUser?> GetVehicleOwnerAsync(long vehicleId)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+        var ownerLink = await context.UserVehicles
+            .Include(uv => uv.User)
+            .FirstOrDefaultAsync(uv => uv.VehicleId == vehicleId && uv.Role == "owner");
+        
+        return ownerLink?.User;
+    }
+
+    /// <summary>
     /// Get a specific vehicle by ID
     /// </summary>
     public async Task<Vehicle?> GetVehicleByIdAsync(long vehicleId)
@@ -319,4 +364,100 @@ public class VehicleService
         await context.SaveChangesAsync();
         return true;
     }
+
+    /// <summary>
+    /// Find a user by email address
+    /// </summary>
+    public async Task<ApplicationUser?> FindUserByEmailAsync(string email)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+        return await context.Users
+            .FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpperInvariant());
+    }
+
+    /// <summary>
+    /// Share a vehicle with another user by email
+    /// Returns a result with success status and error message if applicable
+    /// </summary>
+    public async Task<ShareVehicleResult> ShareVehicleByEmailAsync(long vehicleId, string ownerUserId, string targetEmail)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+        
+        // Find target user by email
+        var targetUser = await context.Users
+            .FirstOrDefaultAsync(u => u.NormalizedEmail == targetEmail.ToUpperInvariant());
+        
+        if (targetUser == null)
+        {
+            return new ShareVehicleResult 
+            { 
+                Success = false, 
+                ErrorMessage = "No user found with that email address." 
+            };
+        }
+
+        // Can't share with yourself
+        if (targetUser.Id == ownerUserId)
+        {
+            return new ShareVehicleResult 
+            { 
+                Success = false, 
+                ErrorMessage = "You cannot share a vehicle with yourself." 
+            };
+        }
+
+        // Verify the owner has permission to share
+        var ownerLink = await context.UserVehicles
+            .FirstOrDefaultAsync(uv => uv.UserId == ownerUserId && uv.VehicleId == vehicleId && uv.Role == "owner");
+        
+        if (ownerLink == null)
+        {
+            return new ShareVehicleResult 
+            { 
+                Success = false, 
+                ErrorMessage = "You don't have permission to share this vehicle." 
+            };
+        }
+
+        // Check if already shared with this user
+        var existingShare = await context.UserVehicles
+            .FirstOrDefaultAsync(uv => uv.UserId == targetUser.Id && uv.VehicleId == vehicleId);
+        
+        if (existingShare != null)
+        {
+            return new ShareVehicleResult 
+            { 
+                Success = false, 
+                ErrorMessage = "This vehicle is already shared with that user." 
+            };
+        }
+
+        // Create the share
+        context.UserVehicles.Add(new UserVehicle
+        {
+            UserId = targetUser.Id,
+            VehicleId = vehicleId,
+            Role = "viewer",
+            IsPrimary = false,
+            CreatedAt = DateTime.UtcNow
+        });
+
+        await context.SaveChangesAsync();
+        
+        return new ShareVehicleResult 
+        { 
+            Success = true, 
+            SharedWithUserEmail = targetUser.Email 
+        };
+    }
+}
+
+/// <summary>
+/// Result of a share vehicle operation
+/// </summary>
+public class ShareVehicleResult
+{
+    public bool Success { get; set; }
+    public string? ErrorMessage { get; set; }
+    public string? SharedWithUserEmail { get; set; }
 }
