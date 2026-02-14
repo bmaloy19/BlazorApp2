@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added - February 14, 2026
+- added basic user vehicle sharing my email.
+- css updates
+
 ### Added - February 11, 2026
 - completed email service
 - overhauled auth pages flow and css architecture
