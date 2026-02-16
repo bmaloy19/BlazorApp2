@@ -660,6 +660,10 @@
     margin: 0 0 var(--space-4) 0;
 }
 
+.modal-body-left {
+    text-align: left;
+}
+
 .modal-footer {
     display: flex;
     justify-content: flex-end;
@@ -667,6 +671,97 @@
     padding: var(--space-4) var(--space-6);
     background: var(--bg-muted);
     border-top: 1px solid var(--border-default);
+}
+
+/* Modal close button */
+.modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-full);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.modal-close:hover {
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+}
+
+/* Modal header with close button layout */
+.modal-header-content {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.modal-header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--brand-primary);
+}
+
+.modal-header-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Additional modal sizes */
+.modal-dialog-sm {
+    max-width: 350px;
+}
+
+.modal-dialog-full {
+    max-width: 95%;
+    width: 95%;
+}
+
+/* Modal icon variant for info */
+.modal-icon.icon-info {
+    background: rgba(var(--color-info-rgb), 0.1);
+    color: var(--color-info);
+}
+
+/* Code/JSON display in modals */
+.modal-code-container {
+    background: var(--gray-900);
+    border: 1px solid var(--gray-700);
+    border-radius: var(--radius-md);
+    max-height: 400px;
+    overflow: auto;
+}
+
+.modal-code-content {
+    margin: 0;
+    padding: var(--space-4);
+    font-family: var(--font-family-mono);
+    font-size: var(--text-xs);
+    line-height: var(--leading-relaxed);
+    color: var(--gray-100);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Modal hint text */
+.modal-hint {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-3);
+}
+
+.modal-hint svg {
+    flex-shrink: 0;
+    color: var(--color-info);
 }
 
 /* ===========================================

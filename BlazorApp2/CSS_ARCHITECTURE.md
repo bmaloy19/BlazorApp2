@@ -108,6 +108,7 @@ Built-in dark mode support:
 |-----------|---------|-------|
 | `Badge` | Status/label display | `<Badge Variant="Badge.BadgeVariant.Primary">Text</Badge>` |
 | `ConfirmDialog` | Modal confirmations | `<ConfirmDialog @ref="_dialog" OnConfirm="..." />` |
+| `Modal` | Reusable modal dialog | `<Modal @ref="_modal" Title="Title"><Body>...</Body><Footer>...</Footer></Modal>` |
 | `DetailCard` | Card with header | `<DetailCard Title="Info"><Content>...</Content></DetailCard>` |
 | `EmptyState` | No data display | `<EmptyState Title="No items" />` |
 | `LoadingState` | Loading spinner | `<LoadingState Message="Loading..." />` |

@@ -511,115 +511,89 @@
         </ConfirmDialog>
 
         @* Share Vehicle Modal *@
-        @if (_showShareModal)
-        {
-            <div class="modal-overlay" @onclick="CloseShareModal">
-                <div class="modal-dialog share-modal" @onclick:stopPropagation="true">
-                    <div class="modal-header">
-                        <h3>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/>
-                            </svg>
-                            Share Vehicle
-                        </h3>
-                        <button class="modal-close" @onclick="CloseShareModal">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="share-vehicle-preview">
-                            <span class="share-vehicle-name">@_vehicle.Year @_vehicle.Make?.Name @_vehicle.Model</span>
-                            @if (!string.IsNullOrEmpty(_userVehicle?.Nickname))
-                            {
-                                <span class="share-vehicle-nickname">"@_userVehicle.Nickname"</span>
-                            }
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="shareEmail">User Email</label>
-                            <input type="email" 
-                                   id="shareEmail" 
-                                   class="form-control @(!string.IsNullOrEmpty(_shareError) ? "is-invalid" : "") @(_shareSuccess ? "is-valid" : "")"
-                                   placeholder="Enter email address"
-                                   @bind="_shareEmail"
-                                   @bind:event="oninput"
-                                   disabled="@_isSharing" />
-                            @if (!string.IsNullOrEmpty(_shareError))
-                            {
-                                <div class="invalid-feedback">@_shareError</div>
-                            }
-                            @if (_shareSuccess)
-                            {
-                                <div class="valid-feedback">Vehicle shared successfully!</div>
-                            }
-                        </div>
-                        
-                        <p class="share-hint">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-                            </svg>
-                            The user will be able to view this vehicle and its service history.
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" @onclick="CloseShareModal" disabled="@_isSharing">Cancel</button>
-                        <button class="btn btn-primary" @onclick="ShareVehicle" disabled="@(_isSharing || string.IsNullOrWhiteSpace(_shareEmail))">
-                            @if (_isSharing)
-                            {
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span>Sharing...</span>
-                            }
-                            else
-                            {
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                    <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/>
-                                </svg>
-                                <span>Share Vehicle</span>
-                            }
-                        </button>
-                    </div>
+        <Modal @ref="_shareModal" Title="Share Vehicle" OnClose="OnShareModalClose">
+            <HeaderIcon>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/>
+                </svg>
+            </HeaderIcon>
+            <Body>
+                <div class="share-vehicle-preview">
+                    <span class="share-vehicle-name">@_vehicle.Year @_vehicle.Make?.Name @_vehicle.Model</span>
+                    @if (!string.IsNullOrEmpty(_userVehicle?.Nickname))
+                    {
+                        <span class="share-vehicle-nickname">"@_userVehicle.Nickname"</span>
+                    }
                 </div>
-            </div>
-        }
+                
+                <div class="form-group">
+                    <label for="shareEmail">User Email</label>
+                    <input type="email" 
+                           id="shareEmail" 
+                           class="form-control @(!string.IsNullOrEmpty(_shareError) ? "is-invalid" : "") @(_shareSuccess ? "is-valid" : "")"
+                           placeholder="Enter email address"
+                           @bind="_shareEmail"
+                           @bind:event="oninput"
+                           disabled="@_isSharing" />
+                    @if (!string.IsNullOrEmpty(_shareError))
+                    {
+                        <div class="invalid-feedback">@_shareError</div>
+                    }
+                    @if (_shareSuccess)
+                    {
+                        <div class="valid-feedback">Vehicle shared successfully!</div>
+                    }
+                </div>
+                
+                <p class="modal-hint">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                    </svg>
+                    The user will be able to view this vehicle and its service history.
+                </p>
+            </Body>
+            <Footer>
+                <button class="btn btn-secondary" @onclick="CloseShareModal" disabled="@_isSharing">Cancel</button>
+                <button class="btn btn-primary" @onclick="ShareVehicle" disabled="@(_isSharing || string.IsNullOrWhiteSpace(_shareEmail))">
+                    @if (_isSharing)
+                    {
+                        <span class="spinner spinner-sm"></span>
+                        <span>Sharing...</span>
+                    }
+                    else
+                    {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/>
+                        </svg>
+                        <span>Share Vehicle</span>
+                    }
+                </button>
+            </Footer>
+        </Modal>
 
         @* VIN Decode Data Modal *@
-        @if (_showOriginalJsonModal)
-        {
-            <div class="modal-overlay" @onclick="CloseOriginalJsonModal">
-                <div class="modal-dialog json-modal" @onclick:stopPropagation="true">
-                    <div class="modal-header">
-                        <h3>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
-                                <path d="M4.5 12.5A.5.5 0 0 1 5 12h3a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm0-2A.5.5 0 0 1 5 10h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm1.639-3.708 1.33.886 1.854-1.855a.25.25 0 0 1 .289-.047l1.888.974V8.5a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V8s1.54-1.274 1.639-1.208zM6.25 6a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5z"/>
-                            </svg>
-                            VIN Decode Data
-                        </h3>
-                        <button class="modal-close" @onclick="CloseOriginalJsonModal">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p class="json-modal-hint">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-                            </svg>
-                            Original data returned from the NHTSA VIN decoder API
-                        </p>
-                        <div class="json-container">
-                            <pre class="json-content">@FormatJson(_vehicle.OriginalJson)</pre>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" @onclick="CloseOriginalJsonModal">Close</button>
-                    </div>
+        <Modal @ref="_jsonModal" Title="VIN Decode Data" Size="Modal.ModalSize.Large" AdditionalClass="json-modal">
+            <HeaderIcon>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
+                    <path d="M4.5 12.5A.5.5 0 0 1 5 12h3a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm0-2A.5.5 0 0 1 5 10h6a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm1.639-3.708 1.33.886 1.854-1.855a.25.25 0 0 1 .289-.047l1.888.974V8.5a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V8s1.54-1.274 1.639-1.208zM6.25 6a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5z"/>
+                </svg>
+            </HeaderIcon>
+            <Body>
+                <p class="modal-hint">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                    </svg>
+                    Original data returned from the NHTSA VIN decoder API
+                </p>
+                <div class="modal-code-container">
+                    <pre class="modal-code-content">@FormatJson(_vehicle.OriginalJson)</pre>
                 </div>
-            </div>
-        }
+            </Body>
+            <Footer>
+                <button class="btn btn-secondary" @onclick="CloseOriginalJsonModal">Close</button>
+            </Footer>
+        </Modal>
     }
 </div>
 
@@ -640,14 +614,14 @@
     private ConfirmDialog? _deleteConfirmDialog;
     
     // Share modal state
-    private bool _showShareModal;
     private string _shareEmail = string.Empty;
     private string? _shareError;
     private bool _isSharing;
     private bool _shareSuccess;
     
-    // Original JSON modal state
-    private bool _showOriginalJsonModal;
+    // Modal references
+    private Modal? _shareModal;
+    private Modal? _jsonModal;
     
     // Inline editing state
     private bool _isEditingMileage;
@@ -895,15 +869,19 @@
     // Share modal methods
     private void ShowShareModal()
     {
-        _showShareModal = true;
         _shareEmail = string.Empty;
         _shareError = null;
         _shareSuccess = false;
+        _shareModal?.Show();
     }
 
     private void CloseShareModal()
     {
-        _showShareModal = false;
+        _shareModal?.Hide();
+    }
+
+    private void OnShareModalClose()
+    {
         _shareEmail = string.Empty;
         _shareError = null;
         _shareSuccess = false;
@@ -951,12 +929,12 @@
     // Original JSON modal methods
     private void ShowOriginalJsonModal()
     {
-        _showOriginalJsonModal = true;
+        _jsonModal?.Show();
     }
 
     private void CloseOriginalJsonModal()
     {
-        _showOriginalJsonModal = false;
+        _jsonModal?.Hide();
     }
 
     private string FormatJson(string? json)
