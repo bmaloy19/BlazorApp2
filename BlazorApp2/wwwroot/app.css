@@ -4658,6 +4658,83 @@ html {
     flex-basis: 100%;
 }
 
+.hero-spec-vin .spec-value {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.btn-vin-info {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-1);
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-full);
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 24px;
+    height: 24px;
+}
+
+.btn-vin-info:hover {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+    transform: scale(1.05);
+}
+
+.btn-vin-info svg {
+    flex-shrink: 0;
+}
+
+/* JSON Modal Styles */
+.json-modal {
+    max-width: 700px;
+    width: 95%;
+}
+
+.json-modal-hint {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: var(--space-3);
+}
+
+.json-container {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: var(--radius-md);
+    max-height: 400px;
+    overflow: auto;
+}
+
+.json-content {
+    margin: 0;
+    padding: var(--space-4);
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: #e2e8f0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.json-modal .modal-footer .btn-secondary {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #334155;
+}
+
+.json-modal .modal-footer .btn-secondary:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
 .hero-spec-notes {
     flex-basis: 100%;
 }
