@@ -113,33 +113,81 @@
             <div class="hero-identity">
                 @if (!string.IsNullOrEmpty(_userVehicle?.Nickname))
                 {
-                    <p class="hero-nickname">@_userVehicle.Nickname</p>
+                    <p class="hero-nickname">
+                        @_userVehicle.Nickname
+                        @if (_userVehicle?.IsPrimary == true)
+                        {
+                            <span class="hero-primary-badge">Primary</span>
+                        }
+                    </p>
                 }
-                <h1 class="hero-title">@_vehicle.Year @_vehicle.Make?.Name @_vehicle.Model</h1>
-                <div class="hero-tags">
-                    @if (_userVehicle?.IsPrimary == true)
-                    {
-                        <span class="tag tag-primary">Primary</span>
-                    }
+                else if (_userVehicle?.IsPrimary == true)
+                {
+                    <p class="hero-nickname">
+                        <span class="hero-primary-badge">Primary Vehicle</span>
+                    </p>
+                }
+                <h1 class="hero-title">
+                    @_vehicle.Year @_vehicle.Make?.Name @_vehicle.Model@(!string.IsNullOrEmpty(_vehicle.Series) || !string.IsNullOrEmpty(_vehicle.Trim) ? " " : "")@(!string.IsNullOrEmpty(_vehicle.Series) ? _vehicle.Series : "")@(!string.IsNullOrEmpty(_vehicle.Series) && !string.IsNullOrEmpty(_vehicle.Trim) ? " " : "")@(!string.IsNullOrEmpty(_vehicle.Trim) ? _vehicle.Trim : "")
+                </h1>
+                
+                @* Vehicle Specs Grid *@
+                <div class="hero-specs">
                     @if (!string.IsNullOrEmpty(_vehicle.BodyClass))
                     {
-                        <span class="tag">@_vehicle.BodyClass</span>
-                    }
-                    @if (!string.IsNullOrEmpty(_vehicle.Series))
-                    {
-                        <span class="tag">@_vehicle.Series</span>
-                    }
-                    @if (!string.IsNullOrEmpty(_vehicle.Trim))
-                    {
-                        <span class="tag">@_vehicle.Trim</span>
+                        <div class="hero-spec-item">
+                            <span class="spec-label">Body</span>
+                            <span class="spec-value">@_vehicle.BodyClass</span>
+                        </div>
                     }
                     @if (!string.IsNullOrEmpty(_vehicle.Engine))
                     {
-                        <span class="tag">@_vehicle.Engine</span>
+                        <div class="hero-spec-item">
+                            <span class="spec-label">Engine</span>
+                            <span class="spec-value">@_vehicle.Engine</span>
+                        </div>
                     }
                     @if (!string.IsNullOrEmpty(_vehicle.Drivetrain))
                     {
-                        <span class="tag">@_vehicle.Drivetrain</span>
+                        <div class="hero-spec-item">
+                            <span class="spec-label">Drivetrain</span>
+                            <span class="spec-value">@_vehicle.Drivetrain</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(_vehicle.Color))
+                    {
+                        <div class="hero-spec-item">
+                            <span class="spec-label">Color</span>
+                            <span class="spec-value">@_vehicle.Color</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(_vehicle.VehicleType))
+                    {
+                        <div class="hero-spec-item">
+                            <span class="spec-label">Type</span>
+                            <span class="spec-value">@_vehicle.VehicleType</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(_vehicle.LicensePlate))
+                    {
+                        <div class="hero-spec-item">
+                            <span class="spec-label">Plate</span>
+                            <span class="spec-value">@_vehicle.LicensePlate</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(_vehicle.Vin))
+                    {
+                        <div class="hero-spec-item hero-spec-vin">
+                            <span class="spec-label">VIN</span>
+                            <span class="spec-value mono">@_vehicle.Vin</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(_vehicle.Notes))
+                    {
+                        <div class="hero-spec-item hero-spec-notes">
+                            <span class="spec-label">Notes</span>
+                            <span class="spec-value">@_vehicle.Notes</span>
+                        </div>
                     }
                 </div>
                 @* Quick stats inline *@
@@ -227,21 +275,21 @@
             </div>
         </div>
 
-        @* Main Content Grid - Details & Summary side by side *@
+        @* Main Content Grid - Edit form and Service History *@
         <div class="vehicle-content-grid details-summary-grid @(_isEditing ? "editing-layout" : "")">
-            @* Vehicle Details Card *@
-            <div class="detail-card info-card compact-card">
-                <div class="detail-card-header compact-header">
-                    <h3>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-                        </svg>
-                        Details
-                    </h3>
-                </div>
-                <div class="detail-card-body compact-body">
-                    @if (_isEditing)
-                    {
+            @* Vehicle Details Edit Card - Only shown when editing *@
+            @if (_isEditing)
+            {
+                <div class="detail-card info-card compact-card edit-card-full">
+                    <div class="detail-card-header compact-header">
+                        <h3>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                            </svg>
+                            Edit Details
+                        </h3>
+                    </div>
+                    <div class="detail-card-body compact-body">
                         <div class="edit-form-modern">
                             @* Section 1: Basic Information *@
                             <div class="edit-section">
@@ -353,78 +401,13 @@
                                 </div>
                             </div>
                         </div>
-                    }
-                    else
-                    {
-                        <div class="detail-grid compact inline-grid">
-                            @if (!string.IsNullOrEmpty(_vehicle.Color))
-                            {
-                                <div class="detail-item">
-                                    <span class="detail-label">Color</span>
-                                    <span class="detail-value">@_vehicle.Color</span>
-                                </div>
-                            }
-                            @if (!string.IsNullOrEmpty(_vehicle.LicensePlate))
-                            {
-                                <div class="detail-item">
-                                    <span class="detail-label">License Plate</span>
-                                    <span class="detail-value">@_vehicle.LicensePlate</span>
-                                </div>
-                            }
-                            @if (_vehicle.CurrentMiles.HasValue)
-                            {
-                                <div class="detail-item">
-                                    <span class="detail-label">Mileage</span>
-                                    <span class="detail-value">@_vehicle.CurrentMiles.Value.ToString("N0") mi</span>
-                                </div>
-                            }
-                            @if (_vehicle.TrackHours && _vehicle.CurrentHours.HasValue)
-                            {
-                                <div class="detail-item">
-                                    <span class="detail-label">Hours</span>
-                                    <span class="detail-value">@_vehicle.CurrentHours.Value.ToString("N1") hrs</span>
-                                </div>
-                            }
-                        </div>
-                    }
+                    </div>
                 </div>
-            </div>
+            }
 
-            @* Maintenance Summary Card - Hidden when editing *@
+            @* Service History Card - Always visible *@
             @if (!_isEditing)
             {
-                <div class="detail-card summary-card compact-card">
-                    <div class="detail-card-header compact-header">
-                        <h3>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
-                                <path d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
-                            </svg>
-                            Summary
-                        </h3>
-                    </div>
-                    <div class="detail-card-body compact-body">
-                        <div class="summary-stats compact-stats">
-                            <div class="summary-stat">
-                                <span class="summary-value">@_serviceRecords.Count</span>
-                                <span class="summary-label">Service Records</span>
-                            </div>
-                            <div class="summary-stat">
-                                <span class="summary-value">@_serviceRecords.Sum(s => s.TotalCost).ToString("C0")</span>
-                                <span class="summary-label">Total Spent</span>
-                            </div>
-                            @if (_serviceRecords.Any())
-                            {
-                                <div class="summary-stat">
-                                    <span class="summary-value">@_serviceRecords.Max(s => s.ServiceDate).ToString("MMM yyyy")</span>
-                                    <span class="summary-label">Last Service</span>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-
-                @* Service History Card *@
                 <div class="detail-card service-card">
                     <div class="detail-card-header">
                         <h3>

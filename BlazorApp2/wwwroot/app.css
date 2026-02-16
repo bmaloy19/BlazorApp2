@@ -4604,6 +4604,75 @@ html {
     color: var(--white);
 }
 
+/* Hero Primary Badge */
+.hero-primary-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    margin-left: 8px;
+    background: var(--primary-red);
+    color: var(--white);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: var(--radius-sm);
+}
+
+/* Hero Specs Grid - Clean compact vehicle details in hero */
+.hero-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-md);
+    padding-top: var(--space-xs);
+}
+
+.hero-spec-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.hero-spec-item .spec-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.hero-spec-item .spec-value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.hero-spec-item .spec-value.mono {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+    font-size: 0.8125rem;
+    letter-spacing: 0.5px;
+}
+
+.hero-spec-vin {
+    flex-basis: 100%;
+}
+
+.hero-spec-notes {
+    flex-basis: 100%;
+}
+
+.hero-spec-notes .spec-value {
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-style: italic;
+}
+
+/* Edit card full width styling */
+.edit-card-full {
+    grid-column: 1 / -1;
+}
+
 /* Quick Stats in Hero */
 .hero-quick-stats {
     display: flex;
@@ -5100,6 +5169,14 @@ html {
         font-size: var(--font-size-xl);
     }
 
+    .hero-specs {
+        gap: var(--space-md);
+    }
+
+    .hero-spec-item {
+        min-width: 45%;
+    }
+
     .edit-form-grid {
         grid-template-columns: 1fr;
     }
@@ -5113,6 +5190,14 @@ html {
     .hero-quick-stats {
         flex-direction: column;
         gap: var(--space-xs);
+    }
+
+    .hero-specs {
+        gap: var(--space-sm) var(--space-md);
+    }
+
+    .hero-spec-item {
+        min-width: 40%;
     }
 }
 
