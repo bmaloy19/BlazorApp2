@@ -4678,19 +4678,21 @@ html {
     display: flex;
     gap: var(--space-3);
     flex-wrap: wrap;
+    margin-top: var(--space-4);
 }
 
 .quick-stat {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-1-5);
-    padding: var(--space-1-5) var(--space-2-5);
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
     background: rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     color: rgba(255, 255, 255, 0.95);
     font-size: 0.875rem;
     font-weight: 500;
     transition: all 0.2s ease;
+    min-height: 40px;
 }
 
 .quick-stat.editable {
@@ -4704,23 +4706,25 @@ html {
 
 .quick-stat svg {
     opacity: 0.8;
+    flex-shrink: 0;
 }
 
 .quick-stat-edit {
     display: flex;
     align-items: center;
-    gap: var(--space-1-5);
+    gap: var(--space-2);
 }
 
 .quick-stat-input {
-    width: 80px;
-    padding: var(--space-1) var(--space-1-5);
+    width: 85px;
+    padding: var(--space-1-5) var(--space-2);
     background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: var(--radius-sm);
     color: white;
     font-size: 0.875rem;
     font-weight: 500;
+    text-align: center;
 }
 
 .quick-stat-input:focus {
@@ -4734,18 +4738,20 @@ html {
 }
 
 .quick-stat-edit .unit {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+    font-weight: 500;
 }
 
 .quick-stat-actions {
     display: flex;
-    gap: var(--space-1);
+    gap: var(--space-1-5);
+    margin-left: var(--space-1);
 }
 
 .btn-quick-save,
 .btn-quick-cancel {
-    padding: var(--space-1);
+    padding: var(--space-1-5);
     background: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: var(--radius-sm);
@@ -4755,6 +4761,8 @@ html {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 28px;
+    height: 28px;
 }
 
 .btn-quick-save:hover {
