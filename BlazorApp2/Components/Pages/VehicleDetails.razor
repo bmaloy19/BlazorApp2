@@ -144,25 +144,74 @@
                 </div>
                 @* Quick stats inline *@
                 <div class="hero-quick-stats">
-                    @if (_vehicle.CurrentMiles.HasValue)
+                    @if (!_isEditing)
                     {
-                        <span class="quick-stat">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z"/>
-                                <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z"/>
-                            </svg>
-                            @_vehicle.CurrentMiles.Value.ToString("N0") mi
-                        </span>
-                    }
-                    @if (_vehicle.TrackHours && _vehicle.CurrentHours.HasValue)
-                    {
-                        <span class="quick-stat">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
-                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
-                            </svg>
-                            @_vehicle.CurrentHours.Value.ToString("N1") hrs
-                        </span>
+                        @* Mileage stat *@
+                        @if (_vehicle.CurrentMiles.HasValue || _isEditingMileage)
+                        {
+                            <span class="quick-stat @(!_isEditingMileage ? "editable" : "")" @onclick="@(() => { if (!_isEditingMileage && !_isEditingHours) StartInlineMileageEdit(); })">
+                                @if (_isEditingMileage)
+                                {
+                                    <div class="quick-stat-edit">
+                                        <input type="number" class="quick-stat-input" @bind="_tempMiles" placeholder="0" @onclick:stopPropagation="true" />
+                                        <span class="unit">mi</span>
+                                        <div class="quick-stat-actions">
+                                            <button class="btn-quick-save" @onclick="@SaveInlineMileage" @onclick:stopPropagation="true" disabled="@_isSaving">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                                                    <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                                                </svg>
+                                            </button>
+                                            <button class="btn-quick-cancel" @onclick="@CancelInlineEdit" @onclick:stopPropagation="true" disabled="@_isSaving">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z"/>
+                                        <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z"/>
+                                    </svg>
+                                    @_vehicle.CurrentMiles.Value.ToString("N0") @:mi
+                                }
+                            </span>
+                        }
+                        @* Hours stat *@
+                        @if (_vehicle.TrackHours && (_vehicle.CurrentHours.HasValue || _isEditingHours))
+                        {
+                            <span class="quick-stat @(!_isEditingHours ? "editable" : "")" @onclick="@(() => { if (!_isEditingMileage && !_isEditingHours) StartInlineHoursEdit(); })">
+                                @if (_isEditingHours)
+                                {
+                                    <div class="quick-stat-edit">
+                                        <input type="number" step="0.1" class="quick-stat-input" @bind="_tempHours" placeholder="0.0" @onclick:stopPropagation="true" />
+                                        <span class="unit">hrs</span>
+                                        <div class="quick-stat-actions">
+                                            <button class="btn-quick-save" @onclick="@SaveInlineHours" @onclick:stopPropagation="true" disabled="@_isSaving">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                                                    <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                                                </svg>
+                                            </button>
+                                            <button class="btn-quick-cancel" @onclick="@CancelInlineEdit" @onclick:stopPropagation="true" disabled="@_isSaving">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                                    </svg>
+                                    @_vehicle.CurrentHours.Value.ToString("N1") @:hrs
+                                }
+                            </span>
+                        }
                     }
                 </div>
             </div>
@@ -179,7 +228,7 @@
         </div>
 
         @* Main Content Grid - Details & Summary side by side *@
-        <div class="vehicle-content-grid details-summary-grid">
+        <div class="vehicle-content-grid details-summary-grid @(_isEditing ? "editing-layout" : "")">
             @* Vehicle Details Card *@
             <div class="detail-card info-card compact-card">
                 <div class="detail-card-header compact-header">
@@ -193,46 +242,121 @@
                 <div class="detail-card-body compact-body">
                     @if (_isEditing)
                     {
-                        <div class="edit-form-grid compact">
-                            <div class="edit-field full-width">
-                                <label>VIN</label>
-                                <input type="text" class="form-control form-control-sm vin-input" @bind="_editVehicle!.Vin" maxlength="17" placeholder="17-character VIN" />
-                            </div>
-                            <div class="edit-field">
-                                <label>Color</label>
-                                <input type="text" class="form-control form-control-sm" @bind="_editVehicle!.Color" placeholder="e.g. Midnight Blue" />
-                            </div>
-                            <div class="edit-field">
-                                <label>License Plate</label>
-                                <input type="text" class="form-control form-control-sm" @bind="_editVehicle!.LicensePlate" placeholder="ABC-1234" />
-                            </div>
-                            <div class="edit-field">
-                                <label>Nickname</label>
-                                <input type="text" class="form-control form-control-sm" @bind="_editNickname" placeholder="e.g. Daily Driver" />
-                            </div>
-                            <div class="edit-field">
-                                <label>Mileage</label>
-                                <div class="input-with-unit">
-                                    <input type="number" class="form-control form-control-sm" @bind="_editVehicle!.CurrentMiles" placeholder="0" />
-                                    <span class="unit">mi</span>
+                        <div class="edit-form-modern">
+                            @* Section 1: Basic Information *@
+                            <div class="edit-section">
+                                <h4 class="section-title">Basic Information</h4>
+                                <div class="edit-fields-row">
+                                    <div class="edit-field">
+                                        <label>Nickname</label>
+                                        <input type="text" class="form-control" @bind="_editNickname" placeholder="e.g. Daily Driver" />
+                                        <span class="field-hint">Personal name for this vehicle</span>
+                                    </div>
+                                    <div class="edit-field">
+                                        <label>Year</label>
+                                        <input type="number" class="form-control" @bind="_editVehicle!.Year" placeholder="2024" />
+                                    </div>
                                 </div>
                             </div>
-                            <div class="edit-field full-width">
-                                <label>Notes</label>
-                                <textarea class="form-control form-control-sm" @bind="_editVehicle!.Notes" rows="2" placeholder="Notes about this vehicle..."></textarea>
+
+                            @* Section 2: Identification *@
+                            <div class="edit-section">
+                                <h4 class="section-title">Identification</h4>
+                                <div class="edit-fields-row">
+                                    <div class="edit-field full-width">
+                                        <label>VIN</label>
+                                        <input type="text" class="form-control vin-input" @bind="_editVehicle!.Vin" maxlength="17" placeholder="17-character VIN" />
+                                        <span class="field-hint">Vehicle Identification Number</span>
+                                    </div>
+                                </div>
+                                <div class="edit-fields-row">
+                                    <div class="edit-field">
+                                        <label>License Plate</label>
+                                        <input type="text" class="form-control" @bind="_editVehicle!.LicensePlate" placeholder="ABC-1234" />
+                                    </div>
+                                    <div class="edit-field">
+                                        <label>Color</label>
+                                        <input type="text" class="form-control" @bind="_editVehicle!.Color" placeholder="e.g. Midnight Blue" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            @* Section 3: Specifications *@
+                            <div class="edit-section">
+                                <h4 class="section-title">Specifications</h4>
+                                <div class="edit-fields-row">
+                                    <div class="edit-field">
+                                        <label>Trim</label>
+                                        <input type="text" class="form-control" @bind="_editVehicle!.Trim" placeholder="e.g. LX, Sport, Limited" />
+                                    </div>
+                                    <div class="edit-field">
+                                        <label>Series</label>
+                                        <input type="text" class="form-control" @bind="_editVehicle!.Series" placeholder="e.g. 3 Series" />
+                                    </div>
+                                </div>
+                                <div class="edit-fields-row">
+                                    <div class="edit-field">
+                                        <label>Body Class</label>
+                                        <input type="text" class="form-control" @bind="_editVehicle!.BodyClass" placeholder="e.g. Sedan, SUV" />
+                                    </div>
+                                    <div class="edit-field">
+                                        <label>Vehicle Type</label>
+                                        <input type="text" class="form-control" @bind="_editVehicle!.VehicleType" placeholder="e.g. Passenger Car" />
+                                    </div>
+                                </div>
+                                <div class="edit-fields-row">
+                                    <div class="edit-field">
+                                        <label>Engine</label>
+                                        <input type="text" class="form-control" @bind="_editVehicle!.Engine" placeholder="e.g. 2.0L Turbo I4" />
+                                    </div>
+                                    <div class="edit-field">
+                                        <label>Drivetrain</label>
+                                        <input type="text" class="form-control" @bind="_editVehicle!.Drivetrain" placeholder="e.g. AWD, FWD, RWD" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            @* Section 4: Tracking *@
+                            <div class="edit-section">
+                                <h4 class="section-title">Tracking</h4>
+                                <div class="edit-fields-row">
+                                    <div class="edit-field">
+                                        <label>Current Mileage</label>
+                                        <div class="input-with-unit">
+                                            <input type="number" class="form-control" @bind="_editVehicle!.CurrentMiles" placeholder="0" />
+                                            <span class="unit">mi</span>
+                                        </div>
+                                    </div>
+                                    <div class="edit-field">
+                                        <label class="track-hours-toggle">
+                                            <input type="checkbox" @bind="_editVehicle!.TrackHours" />
+                                            <span>Track Hours</span>
+                                        </label>
+                                        @if (_editVehicle!.TrackHours)
+                                        {
+                                            <div class="input-with-unit mt-2">
+                                                <input type="number" step="0.1" class="form-control" @bind="_editVehicle!.CurrentHours" placeholder="0.0" />
+                                                <span class="unit">hrs</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            @* Section 5: Notes *@
+                            <div class="edit-section">
+                                <h4 class="section-title">Notes</h4>
+                                <div class="edit-fields-row">
+                                    <div class="edit-field full-width">
+                                        <textarea class="form-control" @bind="_editVehicle!.Notes" rows="3" placeholder="Add any notes about this vehicle..."></textarea>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     }
                     else
                     {
                         <div class="detail-grid compact inline-grid">
-                            @if (!string.IsNullOrEmpty(_vehicle.Vin))
-                            {
-                                <div class="detail-item">
-                                    <span class="detail-label">VIN</span>
-                                    <span class="detail-value vin">@_vehicle.Vin</span>
-                                </div>
-                            }
                             @if (!string.IsNullOrEmpty(_vehicle.Color))
                             {
                                 <div class="detail-item">
@@ -254,15 +378,11 @@
                                     <span class="detail-value">@_vehicle.CurrentMiles.Value.ToString("N0") mi</span>
                                 </div>
                             }
-                            <div class="detail-item">
-                                <span class="detail-label">Added</span>
-                                <span class="detail-value">@_vehicle.CreatedAt.ToString("MMM d, yyyy")</span>
-                            </div>
-                            @if (!string.IsNullOrEmpty(_vehicle.Notes))
+                            @if (_vehicle.TrackHours && _vehicle.CurrentHours.HasValue)
                             {
-                                <div class="detail-item full-width">
-                                    <span class="detail-label">Notes</span>
-                                    <span class="detail-value notes">@_vehicle.Notes</span>
+                                <div class="detail-item">
+                                    <span class="detail-label">Hours</span>
+                                    <span class="detail-value">@_vehicle.CurrentHours.Value.ToString("N1") hrs</span>
                                 </div>
                             }
                         </div>
@@ -495,6 +615,12 @@
     private string? _shareError;
     private bool _isSharing;
     private bool _shareSuccess;
+    
+    // Inline editing state
+    private bool _isEditingMileage;
+    private bool _isEditingHours;
+    private int? _tempMiles;
+    private decimal? _tempHours;
 
     protected override async Task OnInitializedAsync()
     {
@@ -536,9 +662,18 @@
         _editVehicle = new Vehicle
         {
             Id = _vehicle!.Id,
+            Year = _vehicle.Year,
+            Trim = _vehicle.Trim,
+            Series = _vehicle.Series,
+            BodyClass = _vehicle.BodyClass,
+            VehicleType = _vehicle.VehicleType,
+            Engine = _vehicle.Engine,
+            Drivetrain = _vehicle.Drivetrain,
             Color = _vehicle.Color,
             LicensePlate = _vehicle.LicensePlate,
             CurrentMiles = _vehicle.CurrentMiles,
+            CurrentHours = _vehicle.CurrentHours,
+            TrackHours = _vehicle.TrackHours,
             Vin = _vehicle.Vin,
             Notes = _vehicle.Notes
         };
@@ -552,6 +687,85 @@
         _editVehicle = null;
         _editNickname = null;
     }
+    
+    // Inline editing methods
+    private void StartInlineMileageEdit()
+    {
+        _tempMiles = _vehicle?.CurrentMiles;
+        _isEditingMileage = true;
+    }
+    
+    private void StartInlineHoursEdit()
+    {
+        _tempHours = _vehicle?.CurrentHours;
+        _isEditingHours = true;
+    }
+    
+    private async Task SaveInlineMileage()
+    {
+        if (_vehicle is null || _tempMiles == _vehicle.CurrentMiles) 
+        {
+            CancelInlineEdit();
+            return;
+        }
+        
+        _isSaving = true;
+        StateHasChanged();
+        
+        try
+        {
+            _vehicle.CurrentMiles = _tempMiles;
+            await VehicleService.UpdateVehicleAsync(_vehicle);
+            _isEditingMileage = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving mileage: {ex.Message}");
+            _errorMessage = "Failed to save mileage. Please try again.";
+        }
+        finally
+        {
+            _isSaving = false;
+            StateHasChanged();
+        }
+    }
+    
+    private async Task SaveInlineHours()
+    {
+        if (_vehicle is null || _tempHours == _vehicle.CurrentHours)
+        {
+            CancelInlineEdit();
+            return;
+        }
+        
+        _isSaving = true;
+        StateHasChanged();
+        
+        try
+        {
+            _vehicle.CurrentHours = _tempHours;
+            await VehicleService.UpdateVehicleAsync(_vehicle);
+            _isEditingHours = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving hours: {ex.Message}");
+            _errorMessage = "Failed to save hours. Please try again.";
+        }
+        finally
+        {
+            _isSaving = false;
+            StateHasChanged();
+        }
+    }
+    
+    private void CancelInlineEdit()
+    {
+        _isEditingMileage = false;
+        _isEditingHours = false;
+        _tempMiles = null;
+        _tempHours = null;
+    }
 
     private async Task SaveChanges()
     {
@@ -561,9 +775,18 @@
         try
         {
             // Update vehicle info
+            _vehicle.Year = _editVehicle.Year;
+            _vehicle.Trim = _editVehicle.Trim;
+            _vehicle.Series = _editVehicle.Series;
+            _vehicle.BodyClass = _editVehicle.BodyClass;
+            _vehicle.VehicleType = _editVehicle.VehicleType;
+            _vehicle.Engine = _editVehicle.Engine;
+            _vehicle.Drivetrain = _editVehicle.Drivetrain;
             _vehicle.Color = _editVehicle.Color;
             _vehicle.LicensePlate = _editVehicle.LicensePlate;
             _vehicle.CurrentMiles = _editVehicle.CurrentMiles;
+            _vehicle.CurrentHours = _editVehicle.CurrentHours;
+            _vehicle.TrackHours = _editVehicle.TrackHours;
             _vehicle.Vin = _editVehicle.Vin;
             _vehicle.Notes = _editVehicle.Notes;
             
