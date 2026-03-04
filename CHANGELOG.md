@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added - March 4, 2026
+- mobile navbar
+- modal backdrop updates
+- css updates to vehicle details page
+- next large thing is vehicle maintenance tracking
+- next small thing is figuring out a better main page and other pages to add.
+- need to fix logo still
+
 ### Added - February 14, 2026
 - added basic user vehicle sharing my email.
 - css updates
