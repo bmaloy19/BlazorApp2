@@ -844,6 +844,102 @@ textarea.form-control {
     .d-none-mobile {
         display: none !important;
     }
+
+    /* ===== COLLAPSE SIDEBAR ON MOBILE (don't display:none — mobile-bottom-nav lives inside it) ===== */
+    .sidebar {
+        width: 0 !important;
+        height: 0 !important;
+        overflow: visible !important;
+        min-width: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+    }
+
+    /* Hide the sidebar-specific elements */
+    .sidebar-header,
+    .navbar-toggler,
+    .nav-scrollable {
+        display: none !important;
+    }
+
+    /* Push content up so the bottom nav doesn't cover it */
+    main {
+        padding-bottom: 72px;
+    }
+
+    /* ===== MOBILE BOTTOM NAV ===== */
+    .mobile-bottom-nav {
+        display: flex;
+        align-items: stretch;
+        justify-content: space-around;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: var(--sidebar-bg);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        z-index: 1000;
+        padding: 0;
+        /* Safe area for iPhone notch */
+        padding-bottom: env(safe-area-inset-bottom, 0);
+        box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        gap: 3px;
+        color: rgba(255, 255, 255, 0.5);
+        text-decoration: none;
+        font-size: 0.6rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: color var(--transition-fast), background-color var(--transition-fast);
+        padding: 8px 4px;
+        font-family: var(--font-family);
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-nav-item:hover {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        background-color: rgba(255, 255, 255, 0.04);
+    }
+
+    .mobile-nav-item.active {
+        color: var(--primary-red);
+    }
+
+    .mobile-nav-item svg {
+        transition: transform var(--transition-fast);
+    }
+
+    .mobile-nav-item.active svg {
+        filter: drop-shadow(0 0 6px rgba(209, 0, 0, 0.5));
+        transform: scale(1.1);
+    }
+
+    .mobile-nav-label {
+        line-height: 1;
+    }
+
+    /* The logout form needs to flex like a nav item */
+    .mobile-nav-form {
+        display: flex;
+        flex: 1;
+    }
+
+    .mobile-nav-form .mobile-nav-item {
+        width: 100%;
+    }
 }
 
 @media (min-width: 641px) {
@@ -884,6 +980,11 @@ textarea.form-control {
 
     .navbar-toggler {
         display: none;
+    }
+
+    /* Hide mobile bottom nav on desktop */
+    .mobile-bottom-nav {
+        display: none !important;
     }
 
     /* Hide on desktop */
