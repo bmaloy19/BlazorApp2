@@ -499,7 +499,7 @@
             OnConfirm="DeleteVehicle"
             OnCancel="HideDeleteConfirmation">
             <Content>
-                <div class="delete-vehicle-preview">
+                <div class="mini-vehicle-preview">
                     <strong>@_vehicle.Year @_vehicle.Make?.Name @_vehicle.Model</strong>
                     @if (!string.IsNullOrEmpty(_vehicle.Vin))
                     {
@@ -518,13 +518,13 @@
                 </svg>
             </HeaderIcon>
             <Body>
-                <div class="share-vehicle-preview">
-                    <span class="share-vehicle-name">@_vehicle.Year @_vehicle.Make?.Name @_vehicle.Model</span>
-                    @if (!string.IsNullOrEmpty(_userVehicle?.Nickname))
-                    {
-                        <span class="share-vehicle-nickname">"@_userVehicle.Nickname"</span>
-                    }
-                </div>
+            <div class="mini-vehicle-preview">
+                <strong>@_vehicle.Year @_vehicle.Make?.Name @_vehicle.Model</strong>
+                @if (!string.IsNullOrEmpty(_userVehicle.Nickname))
+                {
+                    <span>"@_userVehicle.Nickname"</span>
+                }
+            </div>
                 
                 <div class="form-group">
                     <label for="shareEmail">User Email</label>

@@ -226,6 +226,9 @@
        COMPONENT SPECIFIC TOKENS
        =========================================== */
     
+    /* Layout */
+    --sidebar-width: 260px;
+    
     /* Cards */
     --card-padding: var(--space-lg);
     --card-border-radius: var(--radius-lg);
