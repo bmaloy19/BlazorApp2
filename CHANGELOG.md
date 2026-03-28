@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added - March 28, 2026
+- implemented service record items
+
+TODO -
+- Keep working on service record items 
+  - Odometer should sync when service record is created, and cannot be lowered unless its spesicaly an odometer record.
+  - UI for service record items needs to be better.
+  - Full CRUD for service record items
+
 ### Added - March 4, 2026
 - mobile navbar
 - modal backdrop updates

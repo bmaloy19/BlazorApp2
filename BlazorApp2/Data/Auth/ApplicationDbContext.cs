@@ -11,6 +11,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Vehicle> Vehicles { get; set; }
     public DbSet<UserVehicle> UserVehicles { get; set; }
     public DbSet<ServiceRecord> ServiceRecords { get; set; }
+    public DbSet<ServiceItem> ServiceItems { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -67,14 +68,18 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         // Configure ServiceRecord entity
         builder.Entity<ServiceRecord>(entity =>
         {
-            entity.HasIndex(e => new { e.VehicleId, e.ServiceDate });
-            entity.HasIndex(e => new { e.VehicleId, e.MilesAtService });
-            entity.HasIndex(e => new { e.VehicleId, e.HoursAtService });
+            entity.HasIndex(e => new { e.VehicleId, e.RecordDate }).HasDatabaseName("idx_service_records_vehicle_id");
+            entity.HasIndex(e => new { e.VehicleId, e.RecordType }).HasDatabaseName("idx_service_records_type");
             entity.HasIndex(e => e.CreatedByUserId);
 
             entity.Property(e => e.LaborCost).HasPrecision(10, 2);
             entity.Property(e => e.PartsCost).HasPrecision(10, 2);
             entity.Property(e => e.TotalCost).HasPrecision(10, 2);
+            entity.Property(e => e.HoursAtService).HasPrecision(8, 1);
+
+            // TotalCost is a GENERATED ALWAYS AS ... STORED column — never send it to the DB
+            entity.Property(e => e.TotalCost)
+                .ValueGeneratedOnAddOrUpdate();
 
             entity.HasOne(sr => sr.Vehicle)
                 .WithMany(v => v.ServiceRecords)
@@ -85,6 +90,21 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .WithMany(u => u.ServiceRecords)
                 .HasForeignKey(sr => sr.CreatedByUserId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Configure ServiceItem entity
+        builder.Entity<ServiceItem>(entity =>
+        {
+            entity.HasIndex(e => e.RecordId).HasDatabaseName("idx_service_items_record_id");
+            entity.HasIndex(e => e.Category).HasDatabaseName("idx_service_items_category");
+
+            entity.Property(e => e.PartsCost).HasPrecision(10, 2);
+            entity.Property(e => e.LaborCost).HasPrecision(10, 2);
+
+            entity.HasOne(si => si.Record)
+                .WithMany(sr => sr.Items)
+                .HasForeignKey(si => si.RecordId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

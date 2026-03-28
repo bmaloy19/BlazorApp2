@@ -14,15 +14,31 @@ public class ServiceRecordService
     }
 
     /// <summary>
-    /// Get all service records for a specific vehicle
+    /// Get all service records for a specific vehicle, including their items
     /// </summary>
     public async Task<List<ServiceRecord>> GetServiceRecordsForVehicleAsync(long vehicleId)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         return await context.ServiceRecords
             .Include(sr => sr.CreatedByUser)
+            .Include(sr => sr.Items)
             .Where(sr => sr.VehicleId == vehicleId)
-            .OrderByDescending(sr => sr.ServiceDate)
+            .OrderByDescending(sr => sr.RecordDate)
+            .ThenByDescending(sr => sr.CreatedAt)
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// Get service records filtered by record type
+    /// </summary>
+    public async Task<List<ServiceRecord>> GetServiceRecordsByTypeAsync(long vehicleId, string recordType)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+        return await context.ServiceRecords
+            .Include(sr => sr.CreatedByUser)
+            .Include(sr => sr.Items)
+            .Where(sr => sr.VehicleId == vehicleId && sr.RecordType == recordType)
+            .OrderByDescending(sr => sr.RecordDate)
             .ThenByDescending(sr => sr.CreatedAt)
             .ToListAsync();
     }
@@ -38,15 +54,16 @@ public class ServiceRecordService
         await using var context = await _contextFactory.CreateDbContextAsync();
         return await context.ServiceRecords
             .Include(sr => sr.CreatedByUser)
+            .Include(sr => sr.Items)
             .Where(sr => sr.VehicleId == vehicleId 
-                && sr.ServiceDate >= startDate 
-                && sr.ServiceDate <= endDate)
-            .OrderByDescending(sr => sr.ServiceDate)
+                && sr.RecordDate >= startDate 
+                && sr.RecordDate <= endDate)
+            .OrderByDescending(sr => sr.RecordDate)
             .ToListAsync();
     }
 
     /// <summary>
-    /// Get a single service record by ID
+    /// Get a single service record by ID, including items
     /// </summary>
     public async Task<ServiceRecord?> GetServiceRecordByIdAsync(long id)
     {
@@ -54,11 +71,12 @@ public class ServiceRecordService
         return await context.ServiceRecords
             .Include(sr => sr.Vehicle)
             .Include(sr => sr.CreatedByUser)
+            .Include(sr => sr.Items)
             .FirstOrDefaultAsync(sr => sr.Id == id);
     }
 
     /// <summary>
-    /// Add a new service record
+    /// Add a new service record with optional items
     /// </summary>
     public async Task<ServiceRecord> AddServiceRecordAsync(ServiceRecord record, string userId)
     {
@@ -66,12 +84,6 @@ public class ServiceRecordService
         
         record.CreatedByUserId = userId;
         record.CreatedAt = DateTime.UtcNow;
-        
-        // Calculate total cost if not provided
-        if (record.TotalCost == 0)
-        {
-            record.TotalCost = record.LaborCost + record.PartsCost;
-        }
 
         context.ServiceRecords.Add(record);
         await context.SaveChangesAsync();
@@ -86,31 +98,43 @@ public class ServiceRecordService
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         
-        var existing = await context.ServiceRecords.FindAsync(record.Id);
+        var existing = await context.ServiceRecords
+            .Include(sr => sr.Items)
+            .FirstOrDefaultAsync(sr => sr.Id == record.Id);
         if (existing == null)
             return null;
 
-        // Only the creator can update (or add admin check later)
+        // Only the creator can update
         if (existing.CreatedByUserId != userId)
             return null;
 
-        existing.ServiceDate = record.ServiceDate;
+        existing.RecordType = record.RecordType;
+        existing.RecordDate = record.RecordDate;
         existing.MilesAtService = record.MilesAtService;
         existing.HoursAtService = record.HoursAtService;
         existing.Title = record.Title;
-        existing.Description = record.Description;
+        existing.Notes = record.Notes;
+        existing.ShopName = record.ShopName;
+        existing.Technician = record.Technician;
         existing.LaborCost = record.LaborCost;
         existing.PartsCost = record.PartsCost;
-        existing.TotalCost = record.LaborCost + record.PartsCost;
-        existing.ShopName = record.ShopName;
-        existing.UpdatedAt = DateTime.UtcNow;
+        // TotalCost is computed by DB — don't set it
+
+        // Replace items: remove old, add new
+        context.ServiceItems.RemoveRange(existing.Items);
+        foreach (var item in record.Items)
+        {
+            item.RecordId = existing.Id;
+            item.CreatedAt = DateTime.UtcNow;
+            context.ServiceItems.Add(item);
+        }
 
         await context.SaveChangesAsync();
         return existing;
     }
 
     /// <summary>
-    /// Delete a service record
+    /// Delete a service record (items cascade-delete via DB FK)
     /// </summary>
     public async Task<bool> DeleteServiceRecordAsync(long id, string userId)
     {
@@ -120,7 +144,7 @@ public class ServiceRecordService
         if (record == null)
             return false;
 
-        // Only the creator can delete (or add admin check later)
+        // Only the creator can delete
         if (record.CreatedByUserId != userId)
             return false;
 
@@ -137,7 +161,7 @@ public class ServiceRecordService
         await using var context = await _contextFactory.CreateDbContextAsync();
         return await context.ServiceRecords
             .Where(sr => sr.VehicleId == vehicleId)
-            .SumAsync(sr => sr.TotalCost);
+            .SumAsync(sr => sr.TotalCost ?? 0);
     }
 
     /// <summary>
@@ -148,8 +172,8 @@ public class ServiceRecordService
         await using var context = await _contextFactory.CreateDbContextAsync();
         return await context.ServiceRecords
             .Where(sr => sr.VehicleId == vehicleId)
-            .GroupBy(sr => sr.ServiceDate.Year)
-            .Select(g => new { Year = g.Key, Total = g.Sum(sr => sr.TotalCost) })
+            .GroupBy(sr => sr.RecordDate.Year)
+            .Select(g => new { Year = g.Key, Total = g.Sum(sr => sr.TotalCost ?? 0) })
             .ToDictionaryAsync(x => x.Year, x => x.Total);
     }
 
@@ -160,8 +184,9 @@ public class ServiceRecordService
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
         return await context.ServiceRecords
+            .Include(sr => sr.Items)
             .Where(sr => sr.VehicleId == vehicleId)
-            .OrderByDescending(sr => sr.ServiceDate)
+            .OrderByDescending(sr => sr.RecordDate)
             .ThenByDescending(sr => sr.CreatedAt)
             .FirstOrDefaultAsync();
     }
@@ -176,5 +201,31 @@ public class ServiceRecordService
         // User must have a relationship with the vehicle
         return await context.UserVehicles
             .AnyAsync(uv => uv.UserId == userId && uv.VehicleId == vehicleId);
+    }
+
+    /// <summary>
+    /// Get odometer history for a vehicle (all records that have miles_at_service)
+    /// </summary>
+    public async Task<List<ServiceRecord>> GetOdometerHistoryAsync(long vehicleId)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+        return await context.ServiceRecords
+            .Where(sr => sr.VehicleId == vehicleId && sr.MilesAtService != null)
+            .OrderByDescending(sr => sr.RecordDate)
+            .ThenByDescending(sr => sr.CreatedAt)
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// Get all items of a specific category across all records for a vehicle
+    /// </summary>
+    public async Task<List<ServiceItem>> GetItemsByCategoryAsync(long vehicleId, string category)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+        return await context.ServiceItems
+            .Include(si => si.Record)
+            .Where(si => si.Record.VehicleId == vehicleId && si.Category == category)
+            .OrderByDescending(si => si.Record.RecordDate)
+            .ToListAsync();
     }
 }

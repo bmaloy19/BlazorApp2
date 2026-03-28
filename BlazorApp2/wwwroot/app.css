@@ -6400,3 +6400,421 @@ html {
         width: 100%;
     }
 }
+
+/* ===========================================
+   SERVICE RECORD MODAL
+   =========================================== */
+
+/* Record type selector tabs */
+.sr-type-selector {
+    display: flex;
+    gap: 6px;
+    padding: 0 0 var(--space-lg) 0;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: var(--space-lg);
+}
+
+.sr-type-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    background: var(--card-bg);
+    color: var(--gray);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    font-family: inherit;
+}
+
+.sr-type-btn:hover {
+    border-color: var(--primary-red);
+    color: var(--primary-red);
+    background: rgba(209, 0, 0, 0.04);
+}
+
+.sr-type-btn.active {
+    border-color: var(--primary-red);
+    background: rgba(209, 0, 0, 0.08);
+    color: var(--primary-red);
+    box-shadow: 0 0 0 1px var(--primary-red);
+}
+
+.sr-type-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sr-type-label {
+    white-space: nowrap;
+}
+
+/* Stacked single-column form layout */
+.sr-form-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    min-height: 0;
+}
+
+/* Sections */
+.sr-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.sr-section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--heading-text);
+    margin: 0;
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--card-border);
+}
+
+.sr-section-title svg {
+    color: var(--primary-red);
+    flex-shrink: 0;
+}
+
+.sr-optional {
+    font-weight: 400;
+    font-size: var(--font-size-xs);
+    color: var(--gray);
+    margin-left: auto;
+}
+
+.sr-section-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sr-section-header-row .sr-section-title {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* Fields */
+.sr-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sr-field label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--body-text);
+    margin-bottom: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.sr-field-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--space-md);
+}
+
+/* Service Items */
+.sr-items-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl) var(--space-md);
+    text-align: center;
+    color: var(--gray);
+    border: 2px dashed var(--card-border);
+    border-radius: var(--radius-md);
+}
+
+.sr-items-empty svg {
+    color: var(--lighter-gray);
+    margin-bottom: var(--space-sm);
+}
+
+.sr-items-empty p {
+    margin: 0 0 4px 0;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    color: var(--body-text);
+}
+
+.sr-items-empty span {
+    font-size: var(--font-size-xs);
+    color: var(--gray);
+}
+
+.sr-add-item-btn {
+    flex-shrink: 0;
+}
+
+.sr-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.sr-item-card {
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    background: var(--lightest-gray);
+    overflow: hidden;
+    transition: border-color var(--transition-fast);
+}
+
+.sr-item-card:hover {
+    border-color: var(--lighter-gray);
+}
+
+/* Main row: number badge + name + category + remove button inline */
+.sr-item-main-row {
+    display: flex !important;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.sr-item-main-row .sr-item-number {
+    margin-bottom: 6px; /* align with inputs */
+}
+
+.sr-item-main-row .sr-item-remove {
+    margin-bottom: 2px; /* align with inputs */
+}
+
+.sr-item-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: var(--primary-red);
+    color: var(--white);
+    border-radius: var(--radius-full);
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.sr-item-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-full);
+    color: var(--gray);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.sr-item-remove:hover {
+    background: rgba(209, 0, 0, 0.1);
+    color: var(--primary-red);
+}
+
+.sr-item-fields {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sr-item-field-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+}
+
+.sr-field-grow {
+    grid-column: 1 / -1;
+}
+
+.sr-field-category {
+    min-width: 120px;
+}
+
+.sr-item-field-row .sr-field label {
+    font-size: 0.65rem;
+}
+
+.sr-item-field-row .form-control {
+    font-size: var(--font-size-sm);
+    padding: 6px 10px;
+}
+
+/* Items totals summary bar */
+.sr-items-totals {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--lightest-gray);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-xs);
+}
+
+.sr-totals-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.sr-totals-label {
+    font-size: var(--font-size-xs);
+    color: var(--gray);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.sr-totals-value {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--body-text);
+}
+
+.sr-totals-grand {
+    margin-left: auto;
+}
+
+.sr-totals-grand .sr-totals-label {
+    color: var(--heading-text);
+    font-weight: 700;
+}
+
+.sr-totals-grand .sr-totals-value {
+    font-size: var(--font-size-base);
+    font-weight: 700;
+    color: var(--primary-red);
+}
+
+/* Modal footer layout */
+.service-record-modal .modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sr-footer-left {
+    display: flex;
+    align-items: center;
+}
+
+.sr-footer-right {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.sr-item-count {
+    font-size: var(--font-size-xs);
+    color: var(--gray);
+    font-weight: 500;
+}
+
+/* Service record modal body scrolls, items grow freely */
+.service-record-modal .modal-body {
+    max-height: 75vh;
+    overflow-y: auto;
+}
+
+/* Record Type Badges in service history list */
+.service-title-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+}
+
+.service-title-row h4 {
+    margin: 0;
+}
+
+.record-type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+}
+
+.badge-service {
+    background: rgba(209, 0, 0, 0.1);
+    color: var(--primary-red);
+}
+
+.badge-odometer {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--info);
+}
+
+.badge-inspection {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--success);
+}
+
+.badge-note {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning);
+}
+
+.service-hours {
+    font-size: var(--font-size-xs);
+    color: var(--gray);
+}
+
+.service-items-count {
+    font-size: var(--font-size-xs);
+    color: var(--primary-red);
+    font-weight: 600;
+}
+
+/* Responsive: stack on mobile */
+@media (max-width: 768px) {
+    .sr-type-selector {
+        flex-wrap: wrap;
+    }
+
+    .sr-type-btn {
+        flex: 1 1 calc(50% - 3px);
+    }
+
+    .sr-field-row {
+        grid-template-columns: 1fr;
+    }
+
+    .sr-item-field-row {
+        grid-template-columns: 1fr;
+    }
+
+    .sr-field-grow {
+        grid-column: auto;
+    }
+
+    .service-record-modal .modal-body {
+        max-height: 60vh;
+    }
+
+    .sr-items-totals {
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+    }
+}

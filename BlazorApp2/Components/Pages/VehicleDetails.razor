@@ -1,6 +1,7 @@
 @page "/garage/vehicle/{VehicleId:long}"
 @rendermode InteractiveServer
 @using BlazorApp2.Data.Models
+@using BlazorApp2.Components.Vehicles
 @using BlazorApp2.Services
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
@@ -426,11 +427,11 @@
                             </svg>
                             Service History
                         </h3>
-                        <button class="btn-add-service" @onclick="AddServiceRecord">
+                        <button class="btn-add-service" @onclick="OpenAddServiceModal">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
                             </svg>
-                            Add Service
+                            Add Record
                         </button>
                     </div>
                     <div class="detail-card-body">
@@ -443,7 +444,7 @@
                                     </svg>
                                 </div>
                                 <p>No service records yet</p>
-                                <span class="empty-hint">Keep track of oil changes, repairs, and more</span>
+                                <span class="empty-hint">Keep track of oil changes, repairs, inspections, and more</span>
                             </div>
                         }
                         else
@@ -453,31 +454,42 @@
                                 {
                                     <div class="service-item">
                                         <div class="service-date">
-                                            <span class="service-month">@record.ServiceDate.ToString("MMM")</span>
-                                            <span class="service-day">@record.ServiceDate.Day</span>
-                                            <span class="service-year">@record.ServiceDate.Year</span>
+                                            <span class="service-month">@record.RecordDate.ToString("MMM")</span>
+                                            <span class="service-day">@record.RecordDate.Day</span>
+                                            <span class="service-year">@record.RecordDate.Year</span>
                                         </div>
                                         <div class="service-info">
-                                            <h4>@record.Title</h4>
-                                            @if (!string.IsNullOrEmpty(record.Description))
+                                            <div class="service-title-row">
+                                                <span class="record-type-badge badge-@record.RecordType">@RecordType.GetDisplayName(record.RecordType)</span>
+                                                <h4>@(record.Title ?? RecordType.GetDisplayName(record.RecordType))</h4>
+                                            </div>
+                                            @if (!string.IsNullOrEmpty(record.Notes))
                                             {
-                                                <p class="service-description">@record.Description</p>
+                                                <p class="service-description">@record.Notes</p>
                                             }
                                             <div class="service-meta">
                                                 @if (record.MilesAtService.HasValue)
                                                 {
                                                     <span class="service-miles">@record.MilesAtService.Value.ToString("N0") mi</span>
                                                 }
+                                                @if (record.HoursAtService.HasValue)
+                                                {
+                                                    <span class="service-hours">@record.HoursAtService.Value.ToString("N1") hrs</span>
+                                                }
                                                 @if (!string.IsNullOrEmpty(record.ShopName))
                                                 {
                                                     <span class="service-shop">@record.ShopName</span>
+                                                }
+                                                @if (record.Items.Any())
+                                                {
+                                                    <span class="service-items-count">@record.Items.Count item@(record.Items.Count != 1 ? "s" : "")</span>
                                                 }
                                             </div>
                                         </div>
                                         <div class="service-cost">
                                             @if (record.TotalCost > 0)
                                             {
-                                                <span class="cost-amount">@record.TotalCost.ToString("C")</span>
+                                                <span class="cost-amount">@record.TotalCost.Value.ToString("C")</span>
                                             }
                                         </div>
                                     </div>
@@ -594,6 +606,13 @@
                 <button class="btn btn-secondary" @onclick="CloseOriginalJsonModal">Close</button>
             </Footer>
         </Modal>
+
+        @* Add Service Record Modal *@
+        <AddServiceRecordModal @ref="_addServiceModal"
+            VehicleId="VehicleId"
+            CurrentMiles="_vehicle.CurrentMiles"
+            TrackHours="_vehicle.TrackHours"
+            OnRecordAdded="HandleRecordAdded" />
     }
 </div>
 
@@ -864,7 +883,20 @@
         }
     }
 
-    private void AddServiceRecord() => NavigationManager.NavigateTo($"/garage/vehicle/{VehicleId}/service/add");
+    // Add Service Record modal
+    private AddServiceRecordModal? _addServiceModal;
+
+    private void OpenAddServiceModal()
+    {
+        _addServiceModal?.Show();
+    }
+
+    private async Task HandleRecordAdded(ServiceRecord record)
+    {
+        // Reload service records to show the new one
+        _serviceRecords = await ServiceRecordService.GetServiceRecordsForVehicleAsync(VehicleId);
+        StateHasChanged();
+    }
 
     // Share modal methods
     private void ShowShareModal()
