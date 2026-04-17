@@ -426,14 +426,101 @@
                                 <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811V2.828zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492V2.687zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783z"/>
                             </svg>
                             Service History
+                            @if (HasActiveFilters)
+                            {
+                                <span class="sr-filter-badge">@FilteredRecords.Count of @_serviceRecords.Count</span>
+                            }
+                            else
+                            {
+                                <span class="sr-filter-badge sr-filter-badge-neutral">@_serviceRecords.Count</span>
+                            }
                         </h3>
-                        <button class="btn-add-service" @onclick="OpenAddServiceModal">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                            </svg>
-                            Add Record
-                        </button>
+                        <div class="service-header-actions">
+                            <button class="btn-filter-toggle @(_showFilters ? "active" : "")"
+                                    @onclick="ToggleFilters" type="button" title="Filter records">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                                </svg>
+                                Filters
+                                @if (HasActiveFilters)
+                                {
+                                    <span class="filter-active-dot"></span>
+                                }
+                            </button>
+                            <button class="btn-add-service" @onclick="OpenAddServiceModal">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                                </svg>
+                                Add Record
+                            </button>
+                        </div>
                     </div>
+
+                    @* ── Filter Bar ── *@
+                    @if (_showFilters)
+                    {
+                        <div class="sr-filter-bar">
+                            <div class="sr-filter-group">
+                                <label class="sr-filter-label">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                                    </svg>
+                                    Date Range
+                                </label>
+                                <div class="sr-filter-row">
+                                    <div class="sr-filter-field">
+                                        <span class="sr-filter-hint">From</span>
+                                        <input type="date" class="form-control form-control-sm"
+                                               value="@(_filterDateFrom?.ToString("yyyy-MM-dd") ?? "")"
+                                               @onchange="OnFilterDateFromChanged" />
+                                    </div>
+                                    <div class="sr-filter-field">
+                                        <span class="sr-filter-hint">To</span>
+                                        <input type="date" class="form-control form-control-sm"
+                                               value="@(_filterDateTo?.ToString("yyyy-MM-dd") ?? "")"
+                                               @onchange="OnFilterDateToChanged" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sr-filter-divider"></div>
+                            <div class="sr-filter-group">
+                                <label class="sr-filter-label">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z"/>
+                                        <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z"/>
+                                    </svg>
+                                    Odometer (mi)
+                                </label>
+                                <div class="sr-filter-row">
+                                    <div class="sr-filter-field">
+                                        <span class="sr-filter-hint">Min</span>
+                                        <input type="number" class="form-control form-control-sm"
+                                               value="@_filterMilesMin"
+                                               @oninput="e => { _filterMilesMin = int.TryParse(e.Value?.ToString(), out var v) ? v : null; _currentPage = 1; }"
+                                               placeholder="e.g. 0" />
+                                    </div>
+                                    <div class="sr-filter-field">
+                                        <span class="sr-filter-hint">Max</span>
+                                        <input type="number" class="form-control form-control-sm"
+                                               value="@_filterMilesMax"
+                                               @oninput="e => { _filterMilesMax = int.TryParse(e.Value?.ToString(), out var v) ? v : null; _currentPage = 1; }"
+                                               placeholder="e.g. 100000" />
+                                    </div>
+                                </div>
+                            </div>
+                            @if (HasActiveFilters)
+                            {
+                                <div class="sr-filter-divider"></div>
+                                <button class="btn-clear-filters" type="button" @onclick="ClearFilters">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                    </svg>
+                                    Clear Filters
+                                </button>
+                            }
+                        </div>
+                    }
+
                     <div class="detail-card-body">
                         @if (!_serviceRecords.Any())
                         {
@@ -447,10 +534,22 @@
                                 <span class="empty-hint">Keep track of oil changes, repairs, inspections, and more</span>
                             </div>
                         }
+                        else if (!PagedRecords.Any())
+                        {
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                                    </svg>
+                                </div>
+                                <p>No records match your filters</p>
+                                <button class="btn btn-sm btn-outline" type="button" @onclick="ClearFilters">Clear Filters</button>
+                            </div>
+                        }
                         else
                         {
                             <div class="service-list">
-                                @foreach (var record in _serviceRecords)
+                                @foreach (var record in PagedRecords)
                                 {
                                     <div class="service-item">
                                         <div class="service-date">
@@ -480,11 +579,21 @@
                                                 {
                                                     <span class="service-shop">@record.ShopName</span>
                                                 }
-                                                @if (record.Items.Any())
-                                                {
-                                                    <span class="service-items-count">@record.Items.Count item@(record.Items.Count != 1 ? "s" : "")</span>
-                                                }
                                             </div>
+                                            @* Service item pills *@
+                                            @if (record.Items.Any())
+                                            {
+                                                <div class="service-item-pills">
+                                                    @foreach (var item in record.Items.Take(4))
+                                                    {
+                                                        <span class="service-item-pill">@item.Name</span>
+                                                    }
+                                                    @if (record.Items.Count > 4)
+                                                    {
+                                                        <span class="service-item-pill service-item-pill-more">+@(record.Items.Count - 4) more</span>
+                                                    }
+                                                </div>
+                                            }
                                         </div>
                                         <div class="service-cost">
                                             @if (record.TotalCost > 0)
@@ -492,9 +601,81 @@
                                                 <span class="cost-amount">@record.TotalCost.Value.ToString("C")</span>
                                             }
                                         </div>
+                                        <div class="service-actions">
+                                            <button class="btn-service-action btn-service-edit"
+                                                    title="Edit record"
+                                                    @onclick="() => OpenEditServiceModal(record)"
+                                                    type="button">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                                                </svg>
+                                            </button>
+                                            <button class="btn-service-action btn-service-delete"
+                                                    title="Delete record"
+                                                    @onclick="() => PromptDeleteServiceRecord(record)"
+                                                    type="button">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
                                 }
                             </div>
+
+                            @* ── Pagination ── *@
+                            @if (TotalPages > 1)
+                            {
+                                <div class="sr-pagination">
+                                    <button class="sr-page-btn" type="button"
+                                            disabled="@(_currentPage == 1)"
+                                            @onclick="() => GoToPage(1)" title="First page">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M8.354 1.646a.5.5 0 0 1 0 .708L2.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                                            <path fill-rule="evenodd" d="M12.354 1.646a.5.5 0 0 1 0 .708L6.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="sr-page-btn" type="button"
+                                            disabled="@(_currentPage == 1)"
+                                            @onclick="() => GoToPage(_currentPage - 1)" title="Previous">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                                        </svg>
+                                    </button>
+
+                                    @for (int p = Math.Max(1, _currentPage - 2); p <= Math.Min(TotalPages, _currentPage + 2); p++)
+                                    {
+                                        var pageNum = p;
+                                        <button class="sr-page-btn @(pageNum == _currentPage ? "sr-page-btn-active" : "")"
+                                                type="button" @onclick="() => GoToPage(pageNum)">
+                                            @pageNum
+                                        </button>
+                                    }
+
+                                    <button class="sr-page-btn" type="button"
+                                            disabled="@(_currentPage == TotalPages)"
+                                            @onclick="() => GoToPage(_currentPage + 1)" title="Next">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="sr-page-btn" type="button"
+                                            disabled="@(_currentPage == TotalPages)"
+                                            @onclick="() => GoToPage(TotalPages)" title="Last page">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M3.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L9.293 8 3.646 2.354a.5.5 0 0 1 0-.708z"/>
+                                            <path fill-rule="evenodd" d="M7.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L13.293 8 7.646 2.354a.5.5 0 0 1 0-.708z"/>
+                                        </svg>
+                                    </button>
+
+                                    <span class="sr-pagination-info">
+                                        Page @_currentPage of @TotalPages
+                                        &nbsp;·&nbsp;
+                                        @FilteredRecords.Count record@(FilteredRecords.Count != 1 ? "s" : "")
+                                    </span>
+                                </div>
+                            }
                         }
                     </div>
                 </div>
@@ -607,12 +788,38 @@
             </Footer>
         </Modal>
 
-        @* Add Service Record Modal *@
+        @* Add / Edit Service Record Modal *@
         <AddServiceRecordModal @ref="_addServiceModal"
             VehicleId="VehicleId"
             CurrentMiles="_vehicle.CurrentMiles"
             TrackHours="_vehicle.TrackHours"
-            OnRecordAdded="HandleRecordAdded" />
+            OnRecordAdded="HandleRecordAdded"
+            OnRecordUpdated="HandleRecordUpdated" />
+
+        @* Delete Service Record Confirmation *@
+        <ConfirmDialog @ref="_deleteServiceRecordDialog"
+            Title="Delete Service Record"
+            Message="Are you sure you want to delete this service record?"
+            ConfirmText="Delete Record"
+            ConfirmVariant="ConfirmDialog.ButtonVariant.Danger"
+            IconVariant="ConfirmDialog.IconType.Danger"
+            OnConfirm="ConfirmDeleteServiceRecord"
+            OnCancel="CancelDeleteServiceRecord">
+            <Content>
+                @if (_serviceRecordToDelete != null)
+                {
+                    <div class="mini-vehicle-preview">
+                        <strong>@(_serviceRecordToDelete.Title ?? RecordType.GetDisplayName(_serviceRecordToDelete.RecordType))</strong>
+                        <span>@_serviceRecordToDelete.RecordDate.ToString("MMMM d, yyyy")</span>
+                        @if (_serviceRecordToDelete.MilesAtService.HasValue)
+                        {
+                            <span>@_serviceRecordToDelete.MilesAtService.Value.ToString("N0") mi</span>
+                        }
+                    </div>
+                    <p class="delete-warning">This action cannot be undone.</p>
+                }
+            </Content>
+        </ConfirmDialog>
     }
 </div>
 
@@ -647,6 +854,65 @@
     private bool _isEditingHours;
     private int? _tempMiles;
     private decimal? _tempHours;
+
+    // ── Service History: Filters & Pagination ──
+    private bool _showFilters;
+    private DateOnly? _filterDateFrom;
+    private DateOnly? _filterDateTo;
+    private int? _filterMilesMin;
+    private int? _filterMilesMax;
+    private int _currentPage = 1;
+    private const int PageSize = 10;
+
+    private bool HasActiveFilters =>
+        _filterDateFrom.HasValue || _filterDateTo.HasValue ||
+        _filterMilesMin.HasValue || _filterMilesMax.HasValue;
+
+    private List<ServiceRecord> FilteredRecords => _serviceRecords
+        .Where(r =>
+            (!_filterDateFrom.HasValue || r.RecordDate >= _filterDateFrom.Value) &&
+            (!_filterDateTo.HasValue   || r.RecordDate <= _filterDateTo.Value) &&
+            (!_filterMilesMin.HasValue || (r.MilesAtService.HasValue && r.MilesAtService.Value >= _filterMilesMin.Value)) &&
+            (!_filterMilesMax.HasValue || (r.MilesAtService.HasValue && r.MilesAtService.Value <= _filterMilesMax.Value)))
+        .ToList();
+
+    private int TotalPages => Math.Max(1, (int)Math.Ceiling(FilteredRecords.Count / (double)PageSize));
+
+    private List<ServiceRecord> PagedRecords =>
+        FilteredRecords.Skip((_currentPage - 1) * PageSize).Take(PageSize).ToList();
+
+    private void ToggleFilters()
+    {
+        _showFilters = !_showFilters;
+    }
+
+    private void OnFilterDateFromChanged(ChangeEventArgs e)
+    {
+        _filterDateFrom = DateOnly.TryParse(e.Value?.ToString(), out var d) ? d : null;
+        ResetPage(null);
+    }
+
+    private void OnFilterDateToChanged(ChangeEventArgs e)
+    {
+        _filterDateTo = DateOnly.TryParse(e.Value?.ToString(), out var d) ? d : null;
+        ResetPage(null);
+    }
+
+    private void ResetPage(ChangeEventArgs? _) => _currentPage = 1;
+
+    private void ClearFilters()
+    {
+        _filterDateFrom = null;
+        _filterDateTo = null;
+        _filterMilesMin = null;
+        _filterMilesMax = null;
+        _currentPage = 1;
+    }
+
+    private void GoToPage(int page)
+    {
+        _currentPage = Math.Clamp(page, 1, TotalPages);
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -740,9 +1006,27 @@
         
         try
         {
+            var previousMiles = _vehicle.CurrentMiles;
             _vehicle.CurrentMiles = _tempMiles;
             await VehicleService.UpdateVehicleAsync(_vehicle);
             _isEditingMileage = false;
+
+            // Auto-create an odometer service record so the change is tracked in history
+            if (!string.IsNullOrEmpty(_userId) && _tempMiles.HasValue)
+            {
+                var odometerRecord = new ServiceRecord
+                {
+                    VehicleId = VehicleId,
+                    RecordType = RecordType.Odometer,
+                    RecordDate = DateOnly.FromDateTime(DateTime.Today),
+                    MilesAtService = _tempMiles,
+                    Title = previousMiles.HasValue
+                        ? $"Odometer update ({previousMiles.Value:N0} → {_tempMiles.Value:N0} mi)"
+                        : $"Odometer update ({_tempMiles.Value:N0} mi)"
+                };
+                await ServiceRecordService.AddServiceRecordAsync(odometerRecord, _userId);
+                _serviceRecords = await ServiceRecordService.GetServiceRecordsForVehicleAsync(VehicleId);
+            }
         }
         catch (Exception ex)
         {
@@ -769,9 +1053,28 @@
         
         try
         {
+            var previousHours = _vehicle.CurrentHours;
             _vehicle.CurrentHours = _tempHours;
             await VehicleService.UpdateVehicleAsync(_vehicle);
             _isEditingHours = false;
+
+            // Auto-create an odometer service record so the hours change is tracked in history
+            if (!string.IsNullOrEmpty(_userId) && _tempHours.HasValue)
+            {
+                var hoursRecord = new ServiceRecord
+                {
+                    VehicleId = VehicleId,
+                    RecordType = RecordType.Odometer,
+                    RecordDate = DateOnly.FromDateTime(DateTime.Today),
+                    HoursAtService = _tempHours,
+                    MilesAtService = _vehicle.CurrentMiles,
+                    Title = previousHours.HasValue
+                        ? $"Hours update ({previousHours.Value:N1} → {_tempHours.Value:N1} hrs)"
+                        : $"Hours update ({_tempHours.Value:N1} hrs)"
+                };
+                await ServiceRecordService.AddServiceRecordAsync(hoursRecord, _userId);
+                _serviceRecords = await ServiceRecordService.GetServiceRecordsForVehicleAsync(VehicleId);
+            }
         }
         catch (Exception ex)
         {
@@ -883,17 +1186,68 @@
         }
     }
 
-    // Add Service Record modal
+    // Service Record CRUD
     private AddServiceRecordModal? _addServiceModal;
+    private ConfirmDialog? _deleteServiceRecordDialog;
+    private ServiceRecord? _serviceRecordToDelete;
 
     private void OpenAddServiceModal()
     {
         _addServiceModal?.Show();
     }
 
+    private void OpenEditServiceModal(ServiceRecord record)
+    {
+        _addServiceModal?.ShowEdit(record);
+    }
+
+    private void PromptDeleteServiceRecord(ServiceRecord record)
+    {
+        _serviceRecordToDelete = record;
+        _deleteServiceRecordDialog?.Show();
+    }
+
+    private void CancelDeleteServiceRecord()
+    {
+        _serviceRecordToDelete = null;
+    }
+
+    private async Task ConfirmDeleteServiceRecord()
+    {
+        if (_serviceRecordToDelete == null || _userId == null) return;
+
+        try
+        {
+            var success = await ServiceRecordService.DeleteServiceRecordAsync(_serviceRecordToDelete.Id, _userId);
+            if (success)
+            {
+                _serviceRecords = await ServiceRecordService.GetServiceRecordsForVehicleAsync(VehicleId);
+            }
+            else
+            {
+                _errorMessage = "Unable to delete record. You may not have permission.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting service record: {ex.Message}");
+            _errorMessage = "An error occurred while deleting the record.";
+        }
+        finally
+        {
+            _serviceRecordToDelete = null;
+            StateHasChanged();
+        }
+    }
+
     private async Task HandleRecordAdded(ServiceRecord record)
     {
-        // Reload service records to show the new one
+        _serviceRecords = await ServiceRecordService.GetServiceRecordsForVehicleAsync(VehicleId);
+        StateHasChanged();
+    }
+
+    private async Task HandleRecordUpdated(ServiceRecord record)
+    {
         _serviceRecords = await ServiceRecordService.GetServiceRecordsForVehicleAsync(VehicleId);
         StateHasChanged();
     }

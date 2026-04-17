@@ -1,14 +1,19 @@
 @* 
     AddServiceRecordModal Component
-    Large modal for creating service records with service items.
+    Large modal for creating OR editing service records with service items.
     Supports all record types: service, odometer, inspection, note.
     
-    Usage:
+    Usage (add):
     <AddServiceRecordModal @ref="_addServiceModal" 
         VehicleId="VehicleId"
         CurrentMiles="_vehicle.CurrentMiles"
         TrackHours="_vehicle.TrackHours"
-        OnRecordAdded="HandleRecordAdded" />
+        OnRecordAdded="HandleRecordAdded"
+        OnRecordUpdated="HandleRecordUpdated" />
+
+    Then call:
+        _addServiceModal?.Show()              // to add a new record
+        _addServiceModal?.ShowEdit(record)    // to edit an existing record
 *@
 
 @using BlazorApp2.Data.Models
@@ -20,7 +25,14 @@
        CenterBody="false" AdditionalClass="service-record-modal" OnClose="HandleModalClose">
     <HeaderIcon>
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            @if (_isEditMode)
+            {
+                <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+            }
+            else
+            {
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            }
         </svg>
     </HeaderIcon>
     <Body>
@@ -276,14 +288,14 @@
                 @if (_isSaving)
                 {
                     <span class="spinner spinner-sm"></span>
-                    <span>Saving...</span>
+                    <span>@(_isEditMode ? "Saving..." : "Saving...")</span>
                 }
                 else
                 {
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
                     </svg>
-                    <span>Save Record</span>
+                    <span>@(_isEditMode ? "Save Changes" : "Save Record")</span>
                 }
             </button>
         </div>
@@ -295,12 +307,15 @@
     [Parameter] public int? CurrentMiles { get; set; }
     [Parameter] public bool TrackHours { get; set; }
     [Parameter] public EventCallback<ServiceRecord> OnRecordAdded { get; set; }
+    [Parameter] public EventCallback<ServiceRecord> OnRecordUpdated { get; set; }
 
     private Modal? _modal;
     private ServiceRecord _record = new();
     private List<ServiceItem> _items = new();
     private string? _errorMessage;
     private bool _isSaving;
+    private bool _isEditMode;
+    private long _editingRecordId;
 
     // Auto-calculated totals from service items
     private decimal ItemsPartsCost => _items.Sum(i => i.PartsCost.GetValueOrDefault());
@@ -325,14 +340,16 @@
         }
     }
 
-    private string ModalTitle => _record.RecordType switch
-    {
-        RecordType.Service => "New Service Record",
-        RecordType.Odometer => "Log Odometer Reading",
-        RecordType.Inspection => "Log Inspection",
-        RecordType.Note => "Add Note",
-        _ => "New Record"
-    };
+    private string ModalTitle => _isEditMode
+        ? $"Edit {RecordType.GetDisplayName(_record.RecordType)}"
+        : _record.RecordType switch
+        {
+            RecordType.Service => "New Service Record",
+            RecordType.Odometer => "Log Odometer Reading",
+            RecordType.Inspection => "Log Inspection",
+            RecordType.Note => "Add Note",
+            _ => "New Record"
+        };
 
     private string TitlePlaceholder => _record.RecordType switch
     {
@@ -343,9 +360,56 @@
         _ => "Short description"
     };
 
+    /// <summary>Show the modal in ADD mode (new record).</summary>
     public void Show()
     {
+        _isEditMode = false;
+        _editingRecordId = 0;
         ResetForm();
+        _modal?.Show();
+    }
+
+    /// <summary>Show the modal in EDIT mode pre-populated with an existing record.</summary>
+    public void ShowEdit(ServiceRecord existing)
+    {
+        _isEditMode = true;
+        _editingRecordId = existing.Id;
+
+        // Deep-copy the record fields we care about
+        _record = new ServiceRecord
+        {
+            Id = existing.Id,
+            VehicleId = existing.VehicleId,
+            CreatedByUserId = existing.CreatedByUserId,
+            RecordType = existing.RecordType,
+            RecordDate = existing.RecordDate,
+            MilesAtService = existing.MilesAtService,
+            HoursAtService = existing.HoursAtService,
+            Title = existing.Title,
+            Notes = existing.Notes,
+            ShopName = existing.ShopName,
+            Technician = existing.Technician,
+            PartsCost = existing.PartsCost,
+            LaborCost = existing.LaborCost
+        };
+
+        // Deep-copy items (create fresh objects so we don't mutate the caller's list)
+        _items = existing.Items.Select(i => new ServiceItem
+        {
+            Id = i.Id,
+            RecordId = i.RecordId,
+            Category = i.Category,
+            Name = i.Name,
+            Notes = i.Notes,
+            Status = i.Status,
+            PartsCost = i.PartsCost,
+            LaborCost = i.LaborCost,
+            NextDueMiles = i.NextDueMiles,
+            NextDueDate = i.NextDueDate
+        }).ToList();
+
+        _errorMessage = null;
+        _isSaving = false;
         _modal?.Show();
     }
 
@@ -371,6 +435,8 @@
         _items = new List<ServiceItem>();
         _errorMessage = null;
         _isSaving = false;
+        _isEditMode = false;
+        _editingRecordId = 0;
     }
 
     private void SetRecordType(string type)
@@ -437,9 +503,25 @@
             _record.Items = _items;
             _record.VehicleId = VehicleId;
 
-            var saved = await ServiceRecordService.AddServiceRecordAsync(_record, userId);
-            await OnRecordAdded.InvokeAsync(saved);
-            Close();
+            if (_isEditMode)
+            {
+                var updated = await ServiceRecordService.UpdateServiceRecordAsync(_record, userId);
+                if (updated != null)
+                {
+                    await OnRecordUpdated.InvokeAsync(updated);
+                    Close();
+                }
+                else
+                {
+                    _errorMessage = "Unable to update record. You may not have permission.";
+                }
+            }
+            else
+            {
+                var saved = await ServiceRecordService.AddServiceRecordAsync(_record, userId);
+                await OnRecordAdded.InvokeAsync(saved);
+                Close();
+            }
         }
         catch (Exception ex)
         {
