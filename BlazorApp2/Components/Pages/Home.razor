@@ -1,4 +1,9 @@
-﻿@page "/"
+@page "/"
+@rendermode InteractiveServer
+@using BlazorApp2.Services
+@using Microsoft.AspNetCore.Authorization
+@inject GarageStateProvider GarageState
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Maloy Maintenance</PageTitle>
 
@@ -98,4 +103,25 @@
         </div>
     </div>
 </div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Preload vehicles in the background so the Garage page is instant
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                // Fire-and-forget — don't await so we don't block the Home page render
+                _ = GarageState.PreloadAsync(userId);
+            }
+        }
+        catch
+        {
+            // Preloading is best-effort — failures here are harmless
+        }
+    }
+}
 

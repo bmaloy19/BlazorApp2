@@ -6,6 +6,7 @@
 @attribute [Authorize]
 @inject NavigationManager NavigationManager
 @inject VehicleService VehicleService
+@inject GarageStateProvider GarageState
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>My Garage</PageTitle>
@@ -169,8 +170,8 @@
 
             if (!string.IsNullOrEmpty(_userId))
             {
-                _ownedVehicles = await VehicleService.GetOwnedVehiclesAsync(_userId);
-                _sharedVehicles = await VehicleService.GetSharedVehiclesAsync(_userId);
+                _ownedVehicles = await GarageState.GetOwnedVehiclesAsync(_userId);
+                _sharedVehicles = await GarageState.GetSharedVehiclesAsync(_userId);
             }
         }
         catch (Exception ex)

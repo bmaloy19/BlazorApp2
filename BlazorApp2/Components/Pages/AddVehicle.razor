@@ -7,6 +7,7 @@
 @attribute [Authorize]
 @inject NavigationManager NavigationManager
 @inject VehicleService VehicleService
+@inject GarageStateProvider GarageState
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Add New Vehicle - Maloy Maintenance</PageTitle>
@@ -246,6 +247,7 @@
             }
 
             await VehicleService.AddVehicleAsync(_vehicle, userId, nickname: _nickname, makeName: _makeName);
+            GarageState.InvalidateVehicleList();
             NavigationManager.NavigateTo("/garage");
         }
         catch (Exception ex)

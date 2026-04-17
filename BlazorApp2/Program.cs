@@ -64,6 +64,7 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, EmailSenderService>
 // Register application services
 builder.Services.AddScoped<VehicleService>();
 builder.Services.AddScoped<ServiceRecordService>();
+builder.Services.AddScoped<GarageStateProvider>();
 
 // Add HttpClient for API calls (VIN decoder, etc.)
 builder.Services.AddHttpClient();

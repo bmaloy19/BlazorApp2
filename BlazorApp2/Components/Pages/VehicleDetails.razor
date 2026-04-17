@@ -8,6 +8,7 @@
 @inject NavigationManager NavigationManager
 @inject VehicleService VehicleService
 @inject ServiceRecordService ServiceRecordService
+@inject GarageStateProvider GarageState
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>@(_vehicle != null ? $"{_vehicle.Year} {_vehicle.Make?.Name} {_vehicle.Model} - Maloy Maintenance" : "Vehicle Details - Maloy Maintenance")</PageTitle>
@@ -928,11 +929,11 @@
             _userId = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (!string.IsNullOrEmpty(_userId))
             {
-                _vehicle = await VehicleService.GetVehicleByIdAsync(VehicleId);
+                _vehicle = await GarageState.GetVehicleDetailsAsync(VehicleId);
                 if (_vehicle != null)
                 {
                     _userVehicle = _vehicle.UserVehicles.FirstOrDefault(uv => uv.UserId == _userId);
-                    _serviceRecords = await ServiceRecordService.GetServiceRecordsForVehicleAsync(VehicleId);
+                    _serviceRecords = await GarageState.GetServiceRecordsAsync(VehicleId);
                 }
             }
         }
@@ -1010,6 +1011,8 @@
             _vehicle.CurrentMiles = _tempMiles;
             await VehicleService.UpdateVehicleAsync(_vehicle);
             _isEditingMileage = false;
+            GarageState.InvalidateVehicleDetails(VehicleId);
+            GarageState.InvalidateVehicleList();
 
             // Auto-create an odometer service record so the change is tracked in history
             if (!string.IsNullOrEmpty(_userId) && _tempMiles.HasValue)
@@ -1025,7 +1028,8 @@
                         : $"Odometer update ({_tempMiles.Value:N0} mi)"
                 };
                 await ServiceRecordService.AddServiceRecordAsync(odometerRecord, _userId);
-                _serviceRecords = await ServiceRecordService.GetServiceRecordsForVehicleAsync(VehicleId);
+                GarageState.InvalidateServiceRecords(VehicleId);
+                _serviceRecords = await GarageState.GetServiceRecordsAsync(VehicleId);
             }
         }
         catch (Exception ex)
@@ -1057,6 +1061,8 @@
             _vehicle.CurrentHours = _tempHours;
             await VehicleService.UpdateVehicleAsync(_vehicle);
             _isEditingHours = false;
+            GarageState.InvalidateVehicleDetails(VehicleId);
+            GarageState.InvalidateVehicleList();
 
             // Auto-create an odometer service record so the hours change is tracked in history
             if (!string.IsNullOrEmpty(_userId) && _tempHours.HasValue)
@@ -1073,7 +1079,8 @@
                         : $"Hours update ({_tempHours.Value:N1} hrs)"
                 };
                 await ServiceRecordService.AddServiceRecordAsync(hoursRecord, _userId);
-                _serviceRecords = await ServiceRecordService.GetServiceRecordsForVehicleAsync(VehicleId);
+                GarageState.InvalidateServiceRecords(VehicleId);
+                _serviceRecords = await GarageState.GetServiceRecordsAsync(VehicleId);
             }
         }
         catch (Exception ex)
@@ -1120,6 +1127,8 @@
             _vehicle.Notes = _editVehicle.Notes;
             
             await VehicleService.UpdateVehicleAsync(_vehicle);
+            GarageState.InvalidateVehicleDetails(VehicleId);
+            GarageState.InvalidateVehicleList();
             
             // Update nickname in UserVehicle
             if (_userVehicle != null && _editNickname != _userVehicle.Nickname)
@@ -1172,6 +1181,7 @@
             Console.WriteLine($"DeleteVehicle - Result: {success}");
             if (success)
             {
+                GarageState.InvalidateAll();
                 NavigationManager.NavigateTo("/garage");
             }
             else
@@ -1221,7 +1231,8 @@
             var success = await ServiceRecordService.DeleteServiceRecordAsync(_serviceRecordToDelete.Id, _userId);
             if (success)
             {
-                _serviceRecords = await ServiceRecordService.GetServiceRecordsForVehicleAsync(VehicleId);
+                GarageState.InvalidateServiceRecords(VehicleId);
+                _serviceRecords = await GarageState.GetServiceRecordsAsync(VehicleId);
             }
             else
             {
@@ -1242,13 +1253,15 @@
 
     private async Task HandleRecordAdded(ServiceRecord record)
     {
-        _serviceRecords = await ServiceRecordService.GetServiceRecordsForVehicleAsync(VehicleId);
+        GarageState.InvalidateServiceRecords(VehicleId);
+        _serviceRecords = await GarageState.GetServiceRecordsAsync(VehicleId);
         StateHasChanged();
     }
 
     private async Task HandleRecordUpdated(ServiceRecord record)
     {
-        _serviceRecords = await ServiceRecordService.GetServiceRecordsForVehicleAsync(VehicleId);
+        GarageState.InvalidateServiceRecords(VehicleId);
+        _serviceRecords = await GarageState.GetServiceRecordsAsync(VehicleId);
         StateHasChanged();
     }
 
